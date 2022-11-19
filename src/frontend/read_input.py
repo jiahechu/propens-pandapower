@@ -6,7 +6,7 @@ import pandapower as pp
 import pandas as pd
 
 
-def read_input(file_path):
+def read_input(loadgen_path, topology_path, result_path):
     """
     Read network data from Excel file.
 
@@ -18,48 +18,24 @@ def read_input(file_path):
     """
     # init
     net = pp.create_empty_network()
-    net_components = ['bus', 'line', 'switch', 'load', 'motor', 'asymmetric_load', 'sgen', 'ext_grid', 'transformer',
-                      'gen', 'impedance', 'dcline', 'storage']
 
-    for comp in net_components:
-        # read parameters from Excel
-        data = pd.read_excel(file_path, sheet_name=comp, index_col=0).T.to_dict()
+    # read data from topology and load/gen
+    topology_xlsx = pd.ExcelFile(topology_path)
+    loadgen_xlsx = pd.ExcelFile(loadgen_path)
 
-        for key in data.keys():
-            # add components to network
-            if comp == 'bus':
-                if data[key]['geodata'] == '':
-                    data[key].pop('geodata')
-                    pp.create_bus(net, **data[key])
-                else:
-                    data[key]['geodata'] = tuple(map(float, data[key]['geodata'].split(', ')))
-                    pp.create_bus(net, **data[key])
-            elif comp == 'line':  # special case for line (std or user-defined)
-                if data[key]['std_type'] == '':     # create pre-defined line from standard library
-                    data[key].pop('std_type')
-                    pp.create_line_from_parameters(net, **data[key])
-                else:   # create user-defined line from parameters
-                    for k in ['r_ohm_per_km', 'x_ohm_per_km', 'c_nf_per_km', 'g_us_per_km', 'r0_ohm_per_km',
-                            'x0_ohm_per_km', 'c0_nf_per_km', 'max_i_ka', 'type']:
-                        data[key].pop(k)
-                    pp.create_line(net, **data[key])
-            elif comp == 'transformer':     # special case for trafo (std or user-defined)
-                if data[key]['std_type'] == '':     # create pre-defined trafo from standard library
-                    data[key].pop('std_type')
-                    pp.create_transformer_from_parameters(net, **data[key])
-                else:   # create user-defined trafo from parameters
-                    for k in ['sn_mva', 'vn_hv_kv', 'vn_lv_kv', 'vk_percent', 'vkr_percent', 'pfe_kw', 'i0_percent',
-                            'shift_degree', 'tap_side', 'tap_neutral', 'tap_min', 'tap_max', 'tap_step_percent',
-                            'tap_step_degree', 'tap_phase_shifter']:
-                        data[key].pop(k)
-                    pp.create_transformer(net, **data[key])
-            else:   # all other components
-                fct_name = 'create_' + comp
-                fct = getattr(pp, fct_name)     # get create function from pandapower
-                fct(net, **data[key])
+    # merge topology and load/gen into one excel file
+    writer = pd.ExcelWriter(result_path)    # pylint: disable=abstract-class-instantiated
+    for name in topology_xlsx.sheet_names:
+        topology_xlsx.parse(sheet_name=name, index_col=0).to_excel(writer, sheet_name=name)
+    for name in loadgen_xlsx.sheet_names:
+        loadgen_xlsx.parse(sheet_name=name, index_col=0).to_excel(writer, sheet_name=name)
+    writer.close()
+
+    # read network from final excel file
+    net = pp.from_excel(result_path)
 
     return net
 
 
-net = read_input("./template_input.xlsx")
-print(net)
+# net = read_input('./template_loadgen.xlsx', 'template_topology.xlsx','./re.xlsx')
+# print(net)
