@@ -7,7 +7,8 @@ from src import executor
 
 # summarize all input setups to a dictionary
 input_setup = {
-    'input_path': '',
+    'loadgen_path': '',
+    'topology_path': '',
     'output_path': '',
     'used_scenario': '',
     'used_pre_defined_net': ''}
