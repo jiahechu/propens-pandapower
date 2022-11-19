@@ -11,13 +11,16 @@ def read_input(loadgen_path, topology_path, result_path):
     Read network data from Excel file.
 
     Args:
-        file_path: path of the Excel file.
+        loadgen_path: path of the Excel file with load/gen data.
+        topology_path: path of the Excel file with topology data.
+        result_path: path to store results.
 
     Returns:
         net: pandapower network.
     """
     # init
     net = pp.create_empty_network()
+    result_path += './network.xlsx'
 
     # read data from topology and load/gen
     topology_xlsx = pd.ExcelFile(topology_path)
