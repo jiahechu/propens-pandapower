@@ -12,10 +12,17 @@ import pandas as pd
 from openpyxl import load_workbook
 #from openpyxl.worksheet.table import Table, TableStyleInfo
 
+import Adv_network_only as addnet
+import Time_Series_Func as tsf
+import Analysis_function as anal
 
+"""
+For testing ADV_Network_Only compatibility, change in line 15~17 and 24
+"""
 # cases to develop/test the code
 #net = pn.create_cigre_network_mv(with_der="all")
-net = pn.case5()
+#net = pn.case5()
+net = addnet.net
 #net = pn.panda_four_load_branch()
 pp.runpp(net)
 
@@ -45,12 +52,14 @@ generators_number = len(net.gen)
 lines_number = len(net.line)
 buses_number = len(net.bus)
 trafos_number = len(net.trafo)
+#summary_number = 
 
 load_column = ['B','C','D','E','F','G','H','I']#,'J']
 gen_column = ['B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q']
 line_column = ['B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U']
 trafo_column = ['B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V']
 bus_columm = ['B','C','D','E','F','G','H','I','J','K']
+summary_columm = ['B', 'C', 'D']
 
 parameters_net_load = ['zone','bus','vn_kv','in_service']
 parameters_res_load = ['p_mw','q_mvar']
@@ -62,6 +71,8 @@ parameters_net_trafo =['name', 'std_type', 'hv_bus', 'lv_bus', 'vn_hv_kv', 'vn_l
 parameters_res_trafo = ['p_from_mw', 'q_from_mvar', 'p_to_mw', 'q_to_mvar', 'pl_mw', 'ql_mvar', 'loading_percent']
 parameters_net_bus = ['zone','name','vn_kv','in_service']
 parameters_res_bus = ['vm_pu','va_degree','p_mw','q_mvar']
+
+parameters_summary = ['component','Percentage','Extra Info']
 
 
 
@@ -236,6 +247,8 @@ for step in range(steps_number):
                 bus_cell = bus_columm[j] + str(bus_line)
                 buses_sheet[bus_cell] = bus_row[j] 
 
+
+# %% Summary Sheet
 
 # %% Table reference, and here cell is the last cell added i.e. bottom-right corner of each table
 
