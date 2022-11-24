@@ -5,17 +5,25 @@ script to start the toolbox.
 from src import executor
 
 
-# summarize all input setups to a dictionary
-input_setup = {
-    'loadgen_path': '',
+# summarize all simulation setups to a dictionary
+simulation_setup = {
     'topology_path': '',
-    'used_scenario': '',
-    'scenario_para': {},
-    'used_pre_defined_net': ''}
+    'used_pre_defined_net': '',
+    'use_ts': False,
+    'ts_path': ''
+    }
+
+# summarize all scenarios setup in a dictionary
+scenarios_setup = {
+    'loadgen_path': ['', ''],
+    'used_scenario': ['', ''],
+    'scenario_para': {}
+    }
 
 # summarize all output setups to a dictionary
 output_setup = {
-        'output_path': ''}
+    'output_path': ''
+    }
 
 # execute the toolbox
-executor.executor(input_setup, output_setup)
+executor.executor(simulation_setup, output_setup, output_setup)
