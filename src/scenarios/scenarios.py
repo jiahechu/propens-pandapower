@@ -2,7 +2,8 @@
 Database of all pre-defined scenarios.
 """
 
-def scenaio_pv_gen(net, para):
+
+def scenario_pv_gen(net, para):
     """
     Change all PV generation to given percent.
 
@@ -14,9 +15,11 @@ def scenaio_pv_gen(net, para):
         net: pandapower network after applying the scenario.
     """
     # change pv generation value
+    if para < 0 or para > 2:
+        raise ValueError('The parameter for pre-defined pv-gen scenario should between 0 and 2 (0% to 200%)')
+    else:
+        net.gen['p_mw'][net.gen['type'] == 'pv'] *= para
 
-
-    # end
     return net
 
 
@@ -32,13 +35,15 @@ def scenario_wind_gen(net, para):
         net: pandapower network after applying the scenario.
     """
     # change wind generation value
+    if para < 0 or para > 2:
+        raise ValueError('The parameter for pre-defined wind-gen scenario should between 0 and 2 (0% to 200%)')
+    else:
+        net.gen['p_mw'][net.gen['type'] == 'wind'] *= para
 
-
-    # end
     return net
 
 
-def scenario_conventional_PP_gen(net, para):
+def scenario_conventional_pp_gen(net, para):
     """
     Change all conventional power plant generation to given percent.
 
@@ -50,14 +55,30 @@ def scenario_conventional_PP_gen(net, para):
         net: pandapower network after applying the scenario.
     """
     # change conv pp generation value
+    if para < 0 or para > 2:
+        raise ValueError('The parameter for pre-defined conv-pp scenario should between 0 and 2 (0% to 200%)')
+    else:
+        net.sgen['p_mw'][net.sgen['type'] == 'conv pp'] *= para
 
-
-    # end
     return net
 
 
 def scenario_load(net, para):
-    # do sth
+    """
+    Change all load to given percent.
+
+    Args:
+        net: pandapower network.
+        para: percent of changing (0-2).
+
+    Returns:
+        net: pandapower network after applying the scenario.
+    """
+    if para < 0 or para > 2:
+        raise ValueError('The parameter for pre-defined load scenario should between 0 and 2 (0% to 200%)')
+    else:
+        net.load['p_mw'][:] *= para
+    
     return net
 
 
