@@ -20,7 +20,7 @@ def read_input(loadgen_path, topology_path, result_path):
     """
     # init
     net = pp.create_empty_network()
-    result_path += './network.xlsx'
+    result_path += '/network.xlsx'
 
     # read data from topology and load/gen
     topology_xlsx = pd.ExcelFile(topology_path)
@@ -38,7 +38,3 @@ def read_input(loadgen_path, topology_path, result_path):
     net = pp.from_excel(result_path)
 
     return net
-
-
-# net = read_input('./template_loadgen.xlsx', 'template_topology.xlsx','./re.xlsx')
-# print(net)
