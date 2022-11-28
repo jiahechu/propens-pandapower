@@ -331,7 +331,7 @@ net.sgen[net.sgen.bus.isin(lv_buses.index)]
 #------------------------------------
 #Finish creaiting nets
 #-------------------------------------------
-
+pp.runpp(net, calculate_voltage_angles=True, init="dc")
 """
 #run powerflow
 pp.runpp(net, calculate_voltage_angles=True, init="dc")
