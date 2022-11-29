@@ -14,7 +14,7 @@ from openpyxl import load_workbook
 
 import Adv_network_only as addnet
 import Time_Series_Func as tsf
-import Analysis_function as anal
+import Analysis_Func as anal
 
 """
 For testing ADV_Network_Only compatibility, change in line 15~17 and 24
@@ -81,7 +81,7 @@ initial_line = 4
 initial_cell = 'B3'
 
 for step in range(steps_number):
-# %% Buses' Sheet
+# %% Demand Sheet
     
     if loads_number > 0:
         
@@ -94,12 +94,12 @@ for step in range(steps_number):
         
         
         for i in range(loads_number): # extract the values from power flow results
-            load_zone = net.bus.iloc[net.load.loc[i,'bus']]['zone']
-            load_index = net.load.index[i]
-            net_load = net.load.loc[i,['bus','in_service']].to_list()
-            load_voltage = net.bus.iloc[net.load.loc[i,'bus']]['vn_kv']
-            res_load = net.res_load.loc[i,['p_mw','q_mvar']].to_list()
-            load_row = [step] + [load_zone] + [load_index.tolist()] + net_load + [load_voltage] + res_load
+            load_zone = net.bus.iloc[net.load.loc[i,'bus']]['zone'] #Zone of Bus
+            load_index = net.load.index[i]              #Load Index
+            net_load = net.load.loc[i,['bus','in_service']].to_list() #Bus Index & In Service
+            load_voltage = net.bus.iloc[net.load.loc[i,'bus']]['vn_kv'] #Voltage of Bus that Load is connected
+            res_load = net.res_load.loc[i,['p_mw','q_mvar']].to_list()   #P & Q of the load
+            load_row = [step] + [load_zone] + [load_index.tolist()] + net_load + [load_voltage] + res_load  #Step/Zone/load Index/Bus Index - In Service/Voltage Level/Active Power-Reactive Power
             
             # write the values in excel table
             for j in range(len(load_row)): # going to all the values in the same line/row
@@ -249,6 +249,21 @@ for step in range(steps_number):
 
 
 # %% Summary Sheet
+
+"""
+if there's sth wrong, then Anal function is called.
+Anal function is returning certain data base of faults
+That data sheet will be written in here.
+"""
+
+Summary_data = anal.Anal_xl()
+
+"""
+    if Summary_data != 0:
+        
+        for i in range(len(parameters_summary)):
+            
+"""
 
 # %% Table reference, and here cell is the last cell added i.e. bottom-right corner of each table
 
