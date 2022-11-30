@@ -12,10 +12,17 @@ import pandas as pd
 from openpyxl import load_workbook
 #from openpyxl.worksheet.table import Table, TableStyleInfo
 
+import Adv_network_only as addnet
+import Time_Series_Func as tsf
+import Analysis_Func as anal
 
+"""
+For testing ADV_Network_Only compatibility, change in line 15~17 and 24
+"""
 # cases to develop/test the code
 #net = pn.create_cigre_network_mv(with_der="all")
-net = pn.case5()
+#net = pn.case5()
+net = addnet.net
 #net = pn.panda_four_load_branch()
 pp.runpp(net)
 
@@ -26,9 +33,12 @@ scenario_name = 'Scenario'
 gen_fuel_tech =[]
 
 
+
+Summary_data_Bus_Under_Voltage = anal.Anal_Bus_Under(net.res_bus)
+
 # %% read the template and retrieve the sheets
-output = 'output_template.xlsx'
-wb = load_workbook(filename = output)
+output = 'output_templates/output_template.xlsm'
+wb = load_workbook(filename = output, read_only = False, keep_vba = True)
 
 summary_sheet = wb["Summary"]
 demand_sheet = wb["Demand"]
@@ -45,12 +55,14 @@ generators_number = len(net.gen)
 lines_number = len(net.line)
 buses_number = len(net.bus)
 trafos_number = len(net.trafo)
+summary_number = len(Summary_data_Bus_Under_Voltage)
 
 load_column = ['B','C','D','E','F','G','H','I']#,'J']
 gen_column = ['B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q']
 line_column = ['B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U']
 trafo_column = ['B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V']
 bus_columm = ['B','C','D','E','F','G','H','I','J','K']
+summary_columm = ['B', 'C', 'D' ,'E', 'F']
 
 parameters_net_load = ['zone','bus','vn_kv','in_service']
 parameters_res_load = ['p_mw','q_mvar']
@@ -63,6 +75,8 @@ parameters_res_trafo = ['p_from_mw', 'q_from_mvar', 'p_to_mw', 'q_to_mvar', 'pl_
 parameters_net_bus = ['zone','name','vn_kv','in_service']
 parameters_res_bus = ['vm_pu','va_degree','p_mw','q_mvar']
 
+parameters_summary = ['component','Percentage','Extra Info']
+
 
 
 steps_number = 2 
@@ -70,25 +84,25 @@ initial_line = 4
 initial_cell = 'B3'
 
 for step in range(steps_number):
-# %% Buses' Sheet
+# %% Demand Sheet
     
     if loads_number > 0:
         
         for i in range(len(parameters_net_load)):
-            if not parameters_net_load[i] in net.load.keys():
-                net.load[parameters_net_load[i]] = [None]*loads_number
+            if not parameters_net_load[i] in net.load.keys():  #check the colum of parameter
+                net.load[parameters_net_load[i]] = [None]*loads_number #if the columm of parameter is empty, it creat that columm and put value as none
         for i in range(len(parameters_res_load)):
             if not parameters_res_load[i] in net.res_load.keys():
                 net.res_load[parameters_res_load[i]] = [None]*loads_number   
         
         
         for i in range(loads_number): # extract the values from power flow results
-            load_zone = net.bus.iloc[net.load.loc[i,'bus']]['zone']
-            load_index = net.load.index[i]
-            net_load = net.load.loc[i,['bus','in_service']].to_list()
-            load_voltage = net.bus.iloc[net.load.loc[i,'bus']]['vn_kv']
-            res_load = net.res_load.loc[i,['p_mw','q_mvar']].to_list()
-            load_row = [step] + [load_zone] + [load_index.tolist()] + net_load + [load_voltage] + res_load
+            load_zone = net.bus.iloc[net.load.loc[i,'bus']]['zone'] #Zone of Bus
+            load_index = net.load.index[i]              #Load Index
+            net_load = net.load.loc[i,['bus','in_service']].to_list() #Bus Index & In Service
+            load_voltage = net.bus.iloc[net.load.loc[i,'bus']]['vn_kv'] #Voltage of Bus that Load is connected
+            res_load = net.res_load.loc[i,['p_mw','q_mvar']].to_list()   #P & Q of the load
+            load_row = [step] + [load_zone] + [load_index.tolist()] + net_load + [load_voltage] + res_load  #Step/Zone/load Index/Bus Index - In Service/Voltage Level/Active Power-Reactive Power
             
             # write the values in excel table
             for j in range(len(load_row)): # going to all the values in the same line/row
@@ -237,6 +251,51 @@ for step in range(steps_number):
                 buses_sheet[bus_cell] = bus_row[j] 
 
 
+# %% Summary Sheet
+
+"""
+if there's sth wrong, then Anal function is called.
+Anal function is returning certain data base of faults
+That data sheet will be written in here.
+
+
+30Nov Add
+I may have to make the Summary_data based on Panda data frame format
+
+
+30Nov Add_2
+When I add all data into one Summary_data, it becacme tuple. 
+I need to make different Summary data for each component and add it into one set
+
+"""
+
+Summary_data_Bus_Voltage = anal.Anal_Bus_Under(net.res_bus)
+
+if Summary_data_Bus_Voltage is not None :
+        
+        for i in range(len(parameters_summary)):
+            if not parameters_summary[i] in Summary_data_Bus_Voltage.keys():
+                Summary_data_Bus_Voltage[parameters_summary[i]] = [None]*len(Summary_data_Bus_Voltage)
+        
+        for i in range(len(Summary_data_Bus_Voltage)):
+            summary_index = Summary_data_Bus_Voltage.index[i]
+            summary_bus_index = Summary_data_Bus_Voltage.loc[i,['index']].to_list()
+            summary_bus_value = Summary_data_Bus_Voltage.loc[i, ['value']].to_list()
+            Summary_bus_row = [step] + [summary_index] + summary_bus_index + summary_bus_value
+            
+            for j in range(len(Summary_bus_row)):
+                bus_sum_line = i + initial_line + 10 + step*len(Summary_data_Bus_Voltage) #due to button in Macro, I need to shift some a bit down
+                bus_sum_cell = summary_columm[j] + str(bus_sum_line)
+                
+                if Summary_bus_row[j] == None:
+                    summary_value = '---'
+                else:
+                    summary_value = Summary_bus_row[j]
+                
+                summary_sheet[bus_sum_cell] = summary_value # update cell value
+            
+
+
 # %% Table reference, and here cell is the last cell added i.e. bottom-right corner of each table
 
 demand_table = demand_sheet.tables["demand_table"]
@@ -258,5 +317,5 @@ if buses_number > 0:
 
 # %% save with the topology and scenarios names
 
-filename = 'results_' + network_name + '_' + scenario_name + '.xlsx'
+filename = 'output_templates/results_' + network_name + '_' + scenario_name + '.xlsm'
 wb.save(filename)
