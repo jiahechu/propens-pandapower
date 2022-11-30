@@ -74,8 +74,8 @@ def scenario_load(net, para):
     Returns:
         net: pandapower network after applying the scenario.
     """
-    if para < 0 or para > 2:
-        raise ValueError('The parameter for pre-defined load scenario should between 0 and 2 (0% to 200%)')
+    if para < 0:
+        raise ValueError('The parameter for pre-defined load scenario should bigger than 0 (>0%)')
     else:
         net.load['p_mw'][:] *= para
     
@@ -98,6 +98,10 @@ def scenario_lines_cap(net, para):
 
 def scenario_storage(net, para):
     # do sth
+    if para < 0 or para > 1:
+        raise ValueError('The parameter for pre-defined load scenario should between 0 and 1 (0% to 100%)')
+    else
+        net.storage['max_e_mwh'][:] *= para
     return net
 
 
