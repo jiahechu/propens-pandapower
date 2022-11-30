@@ -84,6 +84,10 @@ def scenario_load(net, para):
 
 def scenario_trafo_cap(net, para):
     # do sth
+    if para < 0.5 or para > 2:
+        raise ValueError('The parameter for pre-defined load scenario should between 0,5 and 2 (50% to 200%)')
+    else
+        net.trafo['sn_mva'][:] *= para
     return net
 
 
