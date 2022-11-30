@@ -34,8 +34,8 @@ gen_fuel_tech =[]
 
 
 # %% read the template and retrieve the sheets
-output = 'output_template.xlsx'
-wb = load_workbook(filename = output)
+output = 'output_templates/output_template.xlsm'
+wb = load_workbook(filename = output, read_only = False, keep_vba = True)
 
 summary_sheet = wb["Summary"]
 demand_sheet = wb["Demand"]
@@ -286,5 +286,5 @@ if buses_number > 0:
 
 # %% save with the topology and scenarios names
 
-filename = 'results_' + network_name + '_' + scenario_name + '.xlsx'
+filename = 'output_templates/results_' + network_name + '_' + scenario_name + '.xlsm'
 wb.save(filename)
