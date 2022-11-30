@@ -86,8 +86,8 @@ for step in range(steps_number):
     if loads_number > 0:
         
         for i in range(len(parameters_net_load)):
-            if not parameters_net_load[i] in net.load.keys():
-                net.load[parameters_net_load[i]] = [None]*loads_number
+            if not parameters_net_load[i] in net.load.keys():  #check the colum of parameter
+                net.load[parameters_net_load[i]] = [None]*loads_number #if the columm of parameter is empty, it creat that columm and put value as none
         for i in range(len(parameters_res_load)):
             if not parameters_res_load[i] in net.res_load.keys():
                 net.res_load[parameters_res_load[i]] = [None]*loads_number   
