@@ -56,7 +56,13 @@ def Anal_pd():
     Bus_Voltage_Over = Anal_Bus_Over(net.res_bus)
     pd_Bus_Voltage = Bus_Voltage_Under.append(Bus_Voltage_Over, ignore_index = True)
     
-    return pd_Bus_Voltage
+    pd_Line_Loading = Anal_Line_Loading_Better(net.res_line)
+    pd_trafo_Loading = Anal_Trafo_Loading(net.res_trafo)
+    pd_trafo3w_Loading = Anal_Trafo3w_Loading(net.res_trafo3w)
+    
+
+    
+    return pd_Bus_Voltage, pd_Line_Loading, pd_trafo_Loading, pd_trafo3w_Loading
 
 #####################################################3
 #####################################################3
@@ -119,6 +125,8 @@ def Anal_Bus_Under(x):
           
         elif all(i < 1.0 for i in s) == True:   #Incase when all are in standard, give one line of notice all are good
             print("There is no undervoltage violation")
+            under_voltage = {'index':['---'],'value':['---']}           
+            under_voltage_df = pd.DataFrame.from_dict(data=under_voltage)
             
     return under_voltage_df
 
@@ -140,6 +148,8 @@ def Anal_Bus_Over(x):
             
         elif all(i < 1.0 for i in s) == True:   #Incase when all are in standard, give one line of notice all are good
             print("There is no overvoltage violation")
+            over_voltage = {'index':['---'],'value':['---']}           
+            over_voltage_df = pd.DataFrame.from_dict(data=over_voltage)
             
     return over_voltage_df
         
@@ -160,12 +170,15 @@ def Anal_Trafo_Loading(x):
             print(f"Transformer %d is overloaded, it is {format(s[i], '.4f')} percent used" % i,  )
             over_trafo_index.append(i)
             over_trafo_value.append(s[i])
-            over_trafo = [[over_trafo_index],[over_trafo_value]]          
+            over_trafo = {'index':over_trafo_index,'value':over_trafo_value}
+            over_trafo_df = pd.DataFrame(data=over_trafo)
         elif all(i < 100 for i in s) == True:
             print("All Transformer is in standard")
+            over_trafo = {'index':['---'],'value':['---']}
+            over_trafo_df = pd.DataFrame(data=over_trafo)
     
     
-    return over_trafo
+    return over_trafo_df
     print('----------Transformer Analysis Over----------------')    
          
 #####################################################3
@@ -183,11 +196,14 @@ def Anal_Trafo3w_Loading(x):
             print(f"3-winding Transformer %d is overloaded, it is {format(s[i], '.4f')} percent used" % i,  )
             over_trafo3w_index.append(i)
             over_trafo3w_value.append(s[i])
-            over_trafo3w = [[over_trafo3w_index],[over_trafo3w_value]]      
+            over_trafo3w = {'index':over_trafo3w_index,'valuel':over_trafo3w_value}      
+            over_trafo3w_df = pd.DataFrame(data=over_trafo3w)
         elif all(i < 100 for i in s) == True:
             print("All 3-winding Transformer is in standard")
+            over_trafo3w = {'index':['---'],'value':['---']}
+            over_trafo3w_df = pd.DataFrame(data=over_trafo3w)
             
-    return over_trafo3w
+    return over_trafo3w_df
     print('----------3 Winding Transformer Analysis Over----------------')
    
 #####################################################3
@@ -217,11 +233,15 @@ def Anal_Line_Loading_Better(x):
             print(f": {format(s[i], '.4f')}%|" )
             over_line_index.append(i)
             over_line_value.append(s[i])
-            over_line = [[over_line_index],[over_line_value]]
+            over_line = {'index':over_line_index,'value':over_line_value}
+            over_line_df = pd.DataFrame(data=over_line)
+            
         elif all(i < 100 for i in s) == True:
             print("|All line is in standard|")
+            over_line = {'index':['---'],'value':['---']}           
+            over_line_df = pd.DataFrame.from_dict(data=over_line)
             
-    return over_line
+    return over_line_df
     print('----------Line Analysis Over----------------')
    
       

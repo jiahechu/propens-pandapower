@@ -34,7 +34,7 @@ gen_fuel_tech =[]
 
 
 
-Summary_data = anal.Anal_pd()
+Summary_data_Bus_Under_Voltage = anal.Anal_Bus_Under(net.res_bus)
 
 # %% read the template and retrieve the sheets
 output = 'output_templates/output_template.xlsm'
@@ -55,7 +55,7 @@ generators_number = len(net.gen)
 lines_number = len(net.line)
 buses_number = len(net.bus)
 trafos_number = len(net.trafo)
-summary_number = len(Summary_data)
+summary_number = len(Summary_data_Bus_Under_Voltage)
 
 load_column = ['B','C','D','E','F','G','H','I']#,'J']
 gen_column = ['B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q']
@@ -262,24 +262,29 @@ That data sheet will be written in here.
 30Nov Add
 I may have to make the Summary_data based on Panda data frame format
 
+
+30Nov Add_2
+When I add all data into one Summary_data, it becacme tuple. 
+I need to make different Summary data for each component and add it into one set
+
 """
 
-Summary_data = anal.Anal_pd()
+Summary_data_Bus_Voltage = anal.Anal_Bus_Under(net.res_bus)
 
-if Summary_data is not None :
+if Summary_data_Bus_Voltage is not None :
         
         for i in range(len(parameters_summary)):
-            if not parameters_summary[i] in Summary_data.keys():
-                Summary_data[parameters_summary[i]] = [None]*len(Summary_data)
+            if not parameters_summary[i] in Summary_data_Bus_Voltage.keys():
+                Summary_data_Bus_Voltage[parameters_summary[i]] = [None]*len(Summary_data_Bus_Voltage)
         
-        for i in range(len(Summary_data)):
-            summary_index = Summary_data.index[i]
-            summary_bus_index = Summary_data.loc[i,['index']].to_list()
-            summary_bus_value = Summary_data.loc[i, ['value']].to_list()
+        for i in range(len(Summary_data_Bus_Voltage)):
+            summary_index = Summary_data_Bus_Voltage.index[i]
+            summary_bus_index = Summary_data_Bus_Voltage.loc[i,['index']].to_list()
+            summary_bus_value = Summary_data_Bus_Voltage.loc[i, ['value']].to_list()
             Summary_bus_row = [step] + [summary_index] + summary_bus_index + summary_bus_value
             
             for j in range(len(Summary_bus_row)):
-                bus_sum_line = i + initial_line + step*len(Summary_data)
+                bus_sum_line = i + initial_line + 10 + step*len(Summary_data_Bus_Voltage) #due to button in Macro, I need to shift some a bit down
                 bus_sum_cell = summary_columm[j] + str(bus_sum_line)
                 
                 if Summary_bus_row[j] == None:
