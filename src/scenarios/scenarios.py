@@ -55,8 +55,8 @@ def scenario_conventional_pp_gen(net, para):
         net: pandapower network after applying the scenario.
     """
     # change conv pp generation value
-    if para < 0 or para > 2:
-        raise ValueError('The parameter for pre-defined conv-pp scenario should between 0 and 2 (0% to 200%)')
+    if para < 0 or para > 1:
+        raise ValueError('The parameter for pre-defined conv-pp scenario should between 0 and 1 (0% to 100%)')
     else:
         net.sgen['p_mw'][net.sgen['type'] == 'conv pp'] *= para
 
