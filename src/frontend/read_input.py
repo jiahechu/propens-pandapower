@@ -4,37 +4,41 @@ Read network data from Excel file.
 
 import pandapower as pp
 import pandas as pd
+import tempfile
 
 
-def read_input(loadgen_path, topology_path, result_path):
+def read_input(scenario_path, topology_path):
     """
     Read network data from Excel file.
 
     Args:
-        loadgen_path: path of the Excel file with load/gen data.
+        scenario_path: path of the Excel file with scenario data.
         topology_path: path of the Excel file with topology data.
-        result_path: path to store results.
 
     Returns:
         net: pandapower network.
+        ts_setup: time series setup.
     """
     # init
-    net = pp.create_empty_network()
-    result_path += '/network.xlsx'
+    tempxlsx = tempfile.NamedTemporaryFile(suffix='.xlsx')
 
-    # read data from topology and load/gen
+    # get time series information
+    ts_setup = pd.read_excel(scenario_path, sheet_name='general')
+
+    # read data from topology and scenario
     topology_xlsx = pd.ExcelFile(topology_path)
-    loadgen_xlsx = pd.ExcelFile(loadgen_path)
+    scenario_xlsx = pd.ExcelFile(scenario_path)
 
-    # merge topology and load/gen into one excel file
-    writer = pd.ExcelWriter(result_path)    # pylint: disable=abstract-class-instantiated
+    # merge topology and scenario into one excel file
+    writer = pd.ExcelWriter(tempxlsx.name)
     for name in topology_xlsx.sheet_names:
         topology_xlsx.parse(sheet_name=name, index_col=0).to_excel(writer, sheet_name=name)
-    for name in loadgen_xlsx.sheet_names:
-        loadgen_xlsx.parse(sheet_name=name, index_col=0).to_excel(writer, sheet_name=name)
+    for name in scenario_xlsx.sheet_names:
+        scenario_xlsx.parse(sheet_name=name, index_col=0).to_excel(writer, sheet_name=name)
     writer.close()
 
     # read network from final excel file
-    net = pp.from_excel(result_path)
+    net = pp.from_excel(tempxlsx.name)
+    tempxlsx.close()
 
-    return net
+    return net, ts_setup
