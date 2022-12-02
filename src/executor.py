@@ -4,6 +4,7 @@ Execute the toolbox.
 import pandapower as pp
 import read_input
 import apply_scenario
+from output import create_excel
 
 
 def executor(simulation_setup, scenarios_setup, output_setup):
@@ -20,5 +21,16 @@ def executor(simulation_setup, scenarios_setup, output_setup):
 
 
     print(net)
+    
+    ''' As we discussed before, so far the "net" that is used below this line should include the results (as list, biig df, etc) '''
+    # list_of_net = [net_step1, net_step2, ... ] 
+    
+    network_name = output_setup['topology_name']
+    scenario_name = output_setup['scenario_name']
+    gen_fuel_tech = []
+    output_path = output_setup['output_path']
+    
+    create_excel(network_name, scenario_name, list_of_net, gen_fuel_tech, output_path)
+    
 
     return 0

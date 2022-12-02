@@ -33,7 +33,7 @@ For testing ADV_Network_Only compatibility, change in line 15~17 and 24
 # gen_fuel_tech =[]
 
 
-def create_excel(network_name, scenario_name, net, gen_fuel_tech):
+def create_excel(network_name, scenario_name, net, gen_fuel_tech, output_path):
     # %% Parameters initilalization 
     
     #  read the template and retrieve the sheets
@@ -57,7 +57,9 @@ def create_excel(network_name, scenario_name, net, gen_fuel_tech):
     
     
     # %% Preallocate values: number of loads/gen/buses/trafos/lines, columns in the excel template and their names
-
+    
+    ''' to clean the code this could be saved in a dictionary/class/etc, not in several different parameters '''
+    
     # number of components
     loads_number = len(net.load)
     generators_number = len(net.gen)
@@ -324,5 +326,5 @@ def create_excel(network_name, scenario_name, net, gen_fuel_tech):
     
     # %% save with the topology and scenarios names
     
-    filename = 'output_templates/results_' + network_name + '_' + scenario_name + '.xlsm'
+    filename = output_path + '/' + 'Results_' + network_name + '_' + scenario_name + '.xlsm'
     wb.save(filename)

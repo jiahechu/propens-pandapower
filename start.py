@@ -22,7 +22,10 @@ scenarios_setup = {
 
 # summarize all output setups to a dictionary
 output_setup = {
-    'output_path': './result'
+    'output_path': './result',
+    # the excel output will have topology and scenario name e.g. Results_Network01_Scenario01.xlsm
+    'topology_name' : 'Network01', 
+    'scenario_name' : 'Scenario01'
     }
 
 # execute the toolbox
