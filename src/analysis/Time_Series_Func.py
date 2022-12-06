@@ -33,11 +33,11 @@ time_steps = 24
 def timeseries_example(output_dir):
     #1. Create a simple test net
     net = addnet.net  #going to be defined below
-    #Since Adavanced_NEtwork already have the net
+    #Since Adavanced_NEtwork already have the net and for later, we get the net from front-end
     
     
     #2. Create (random) data source
-    n_timesteps = 24
+    n_timesteps = 50
     profiles, ds = create_data_source(n_timesteps)
     
     #3. Create controller
@@ -49,7 +49,15 @@ def timeseries_example(output_dir):
     #5. the main time series function
     run_timeseries(net, time_steps)
     
+    a = pd.DataFrame(run_timeseries(net, time_steps))
+    
+    #6 Return value in case of need
+    return a, net
+    
     """
+    
+    since we will get pre-defined network from front-end, this is not needed
+    
 def simple_test_net():
 
     
@@ -74,7 +82,7 @@ def simple_test_net():
     return net
 """
     
-def create_data_source(n_timesteps=24):
+def create_data_source(n_timesteps=50):
     profiles = pd.DataFrame() #making datapase frame
     profiles['load1_p'] = np.random.random(n_timesteps)*20
     profiles['sgen1_p'] = np.random.random(n_timesteps)*20
@@ -120,6 +128,8 @@ timeseries_example(output_dir)
 
 #plot the result
 """
+Basically, from create_output_writer, it export the data
+and we read that file here again, to plot the data
 """
 import matplotlib.pyplot as plt
 #%matplotlib inline  
