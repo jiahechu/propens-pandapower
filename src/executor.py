@@ -23,13 +23,13 @@ def executor(input_setup, output_setup):
         net, ts_setup = read_input(scenario_path, input_setup['topology_path'])
 
         # TODO: apply pre-defined scenarios first or time series first?
-        # apply time series
-        if ts_setup['use_ts'][0]:
-            nets = generate_timeseries(net, ts_setup['ts_path'][0])
-
         # apply scenario from data
         if pd_scenario != '':
             net = apply_scenario(net, pd_scenario, pd_para)
+
+        # apply time series
+        if ts_setup['use_ts'][0]:
+            generate_timeseries(net, ts_setup['ts_path'][0])
 
         print(net)
 
