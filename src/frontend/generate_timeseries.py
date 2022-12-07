@@ -16,7 +16,7 @@ def generate_timeseries(net, ts_path):
         ts_path: path of time series data.
 
     Returns:
-        None
+        net: pandapower network with controllers for ts.
     """
     # initialize
     ts_file = pd.ExcelFile(ts_path)
@@ -46,3 +46,5 @@ def generate_timeseries(net, ts_path):
         element, index, variable = column.split('-')
         ConstControl(net, element=element, variable=variable, element_index=index,
                      data_source=data_source, profile_name=column)
+
+    return net
