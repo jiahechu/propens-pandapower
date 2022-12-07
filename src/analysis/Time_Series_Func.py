@@ -28,7 +28,7 @@ import Adv_network_only as addnet
 5. call the main time series function to calculate the desired results
 """
 
-time_steps = 24
+time_steps = 9000
 
 def timeseries_example(output_dir):
     #1. Create a simple test net
@@ -37,7 +37,7 @@ def timeseries_example(output_dir):
     
     
     #2. Create (random) data source
-    n_timesteps = 50
+    n_timesteps = 9000
     profiles, ds = create_data_source(n_timesteps)
     
     #3. Create controller
@@ -82,10 +82,45 @@ def simple_test_net():
     return net
 """
     
-def create_data_source(n_timesteps=50):
+def create_data_source(n_timesteps=9000):
     profiles = pd.DataFrame() #making datapase frame
     profiles['load1_p'] = np.random.random(n_timesteps)*20
+    profiles['load2_p'] = np.random.random(n_timesteps)*20
+    profiles['load3_p'] = np.random.random(n_timesteps)*20
+    profiles['load4_p'] = np.random.random(n_timesteps)*20
+    profiles['load5_p'] = np.random.random(n_timesteps)*20
+    profiles['load6_p'] = np.random.random(n_timesteps)*20
+    profiles['load7_p'] = np.random.random(n_timesteps)*20
+    profiles['load8_p'] = np.random.random(n_timesteps)*20
+    profiles['load9_p'] = np.random.random(n_timesteps)*20
+    profiles['load10_p'] = np.random.random(n_timesteps)*20
+    profiles['load11_p'] = np.random.random(n_timesteps)*20
+    profiles['load12_p'] = np.random.random(n_timesteps)*20
+    profiles['load13_p'] = np.random.random(n_timesteps)*20
+    profiles['load14_p'] = np.random.random(n_timesteps)*20
+    profiles['load15_p'] = np.random.random(n_timesteps)*20
+    profiles['load16_p'] = np.random.random(n_timesteps)*20
+    profiles['load17_p'] = np.random.random(n_timesteps)*20
+    profiles['load18_p'] = np.random.random(n_timesteps)*20
+    profiles['load19_p'] = np.random.random(n_timesteps)*20
+    profiles['load20_p'] = np.random.random(n_timesteps)*20
+    profiles['load21_p'] = np.random.random(n_timesteps)*20
+    profiles['load22_p'] = np.random.random(n_timesteps)*20
+    profiles['load23_p'] = np.random.random(n_timesteps)*20
+    profiles['load24_p'] = np.random.random(n_timesteps)*20
+    
     profiles['sgen1_p'] = np.random.random(n_timesteps)*20
+    profiles['sgen2_p'] = np.random.random(n_timesteps)*20
+    profiles['sgen3_p'] = np.random.random(n_timesteps)*20
+    profiles['sgen4_p'] = np.random.random(n_timesteps)*20
+    profiles['sgen5_p'] = np.random.random(n_timesteps)*20
+    profiles['sgen6_p'] = np.random.random(n_timesteps)*20
+    profiles['sgen7_p'] = np.random.random(n_timesteps)*20
+    profiles['sgen8_p'] = np.random.random(n_timesteps)*20
+    profiles['sgen9_p'] = np.random.random(n_timesteps)*20
+    profiles['sgen10_p'] = np.random.random(n_timesteps)*20
+   
+
                                 # add data in database frame
     ds = DFData(profiles)
     
@@ -93,8 +128,41 @@ def create_data_source(n_timesteps=50):
 
 
 def create_controllers(net, ds):
-    ConstControl(net, element='load', variable='p_mw', element_index=[6], data_source = ds, profile_name = ["load1_p"])
+    ConstControl(net, element='load', variable='p_mw', element_index=[1], data_source = ds, profile_name = ["load1_p"])
+    ConstControl(net, element='load', variable='p_mw', element_index=[3], data_source = ds, profile_name = ["load2_p"])
+    ConstControl(net, element='load', variable='p_mw', element_index=[4], data_source = ds, profile_name = ["load3_p"])
+    ConstControl(net, element='load', variable='p_mw', element_index=[6], data_source = ds, profile_name = ["load4_p"])
+    ConstControl(net, element='load', variable='p_mw', element_index=[1], data_source = ds, profile_name = ["load5_p"])
+    ConstControl(net, element='load', variable='p_mw', element_index=[3], data_source = ds, profile_name = ["load6_p"])
+    ConstControl(net, element='load', variable='p_mw', element_index=[4], data_source = ds, profile_name = ["load7_p"])
+    ConstControl(net, element='load', variable='p_mw', element_index=[6], data_source = ds, profile_name = ["load8_p"])
+    ConstControl(net, element='load', variable='p_mw', element_index=[1], data_source = ds, profile_name = ["load9_p"])
+    ConstControl(net, element='load', variable='p_mw', element_index=[3], data_source = ds, profile_name = ["load10_p"])
+    ConstControl(net, element='load', variable='p_mw', element_index=[4], data_source = ds, profile_name = ["load11_p"])
+    ConstControl(net, element='load', variable='p_mw', element_index=[6], data_source = ds, profile_name = ["load12_p"])
+    ConstControl(net, element='load', variable='p_mw', element_index=[1], data_source = ds, profile_name = ["load13_p"])
+    ConstControl(net, element='load', variable='p_mw', element_index=[3], data_source = ds, profile_name = ["load14_p"])
+    ConstControl(net, element='load', variable='p_mw', element_index=[4], data_source = ds, profile_name = ["load15_p"])
+    ConstControl(net, element='load', variable='p_mw', element_index=[6], data_source = ds, profile_name = ["load16_p"])
+    ConstControl(net, element='load', variable='p_mw', element_index=[1], data_source = ds, profile_name = ["load17_p"])
+    ConstControl(net, element='load', variable='p_mw', element_index=[3], data_source = ds, profile_name = ["load18_p"])
+    ConstControl(net, element='load', variable='p_mw', element_index=[4], data_source = ds, profile_name = ["load19_p"])
+    ConstControl(net, element='load', variable='p_mw', element_index=[6], data_source = ds, profile_name = ["load20_p"])
+    ConstControl(net, element='load', variable='p_mw', element_index=[1], data_source = ds, profile_name = ["load21_p"])
+    ConstControl(net, element='load', variable='p_mw', element_index=[3], data_source = ds, profile_name = ["load22_p"])
+    ConstControl(net, element='load', variable='p_mw', element_index=[4], data_source = ds, profile_name = ["load23_p"])
+    ConstControl(net, element='load', variable='p_mw', element_index=[6], data_source = ds, profile_name = ["load24_p"])
+    
     ConstControl(net, element='sgen', variable='p_mw', element_index=[0], data_source = ds, profile_name = ["sgen1_p"])
+    ConstControl(net, element='sgen', variable='p_mw', element_index=[0], data_source = ds, profile_name = ["sgen2_p"])
+    ConstControl(net, element='sgen', variable='p_mw', element_index=[0], data_source = ds, profile_name = ["sgen3_p"])
+    ConstControl(net, element='sgen', variable='p_mw', element_index=[0], data_source = ds, profile_name = ["sgen4_p"])
+    ConstControl(net, element='sgen', variable='p_mw', element_index=[0], data_source = ds, profile_name = ["sgen5_p"])
+    ConstControl(net, element='sgen', variable='p_mw', element_index=[0], data_source = ds, profile_name = ["sgen6_p"])
+    ConstControl(net, element='sgen', variable='p_mw', element_index=[0], data_source = ds, profile_name = ["sgen7_p"])
+    ConstControl(net, element='sgen', variable='p_mw', element_index=[0], data_source = ds, profile_name = ["sgen8_p"])
+    ConstControl(net, element='sgen', variable='p_mw', element_index=[0], data_source = ds, profile_name = ["sgen9_p"])
+    ConstControl(net, element='sgen', variable='p_mw', element_index=[0], data_source = ds, profile_name = ["sgen10_p"])
 
 
 
@@ -113,6 +181,7 @@ def create_output_writer(net, time_steps, output_dir):
     ow.log_variable('res_bus', 'vm_pu')
     ow.log_variable('res_line', 'loading_percent')
     ow.log_variable('res_line', 'i_ka')
+    ow.log_variable('res_trafo', 'loading_percent')
     return ow
 
 
@@ -125,7 +194,7 @@ timeseries_example(output_dir)
 
 
 
-
+#%%
 #plot the result
 """
 Basically, from create_output_writer, it export the data
@@ -163,6 +232,14 @@ plt.ylabel("P [MW]")
 plt.grid()
 plt.show()
 
+# trafo loading
+trafo_file = os.path.join(output_dir, "res_trafo", "loading_percent.xlsx")
+trafo_loading = pd.read_excel(trafo_file, index_col=0)
+trafo_loading.plot(label="trafo")
+plt.xlabel("time step")
+plt.ylabel("Transformer Loading [%]")
+plt.grid()
+plt.show()
 
     
     
