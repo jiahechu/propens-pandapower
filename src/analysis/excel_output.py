@@ -418,8 +418,17 @@ if Sum_Trafo3w_Over_Data is not None :
                 sum_trafo3w_over_value_write = sum_trafo3w_over_row[j]
             
             summary_sheet[sum_trafo3w_over_cell] = sum_trafo3w_over_value_write
+            
+            
+########################################################################
+"""
+Maybe it is better to make it a class???
 
+class excel_out_try():
+    def __init__(self):
+        self.Data_Used
 
+"""
 
 # %% Table reference, and here cell is the last cell added i.e. bottom-right corner of each table
 
