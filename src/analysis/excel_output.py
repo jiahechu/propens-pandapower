@@ -5,6 +5,9 @@ Created on Tue Nov 15 21:40:43 2022
 @author: marti
 """
 
+import os
+import tempfile
+
 import pandapower.networks as pn
 import pandapower as pp
 import pandas as pd
@@ -32,9 +35,14 @@ scenario_name = 'Scenario'
 # input from fron-end
 gen_fuel_tech =[]
 
+output_dir = os.path.join(tempfile.gettempdir(), "time_series_example")
+Time_res = tsf.timeseries_example(output_dir)
 
+Sum_Bus_Vol_Under_Data = anal.Anal_Bus_Under(net.res_bus)
+Sum_Bus_Vol_Over_Data = anal.Anal_Bus_Over(net.res_bus)
+Sum_Trafo_Over_Data = anal.Anal_Trafo_Loading(net.res_trafo)
+Sum_Trafo3w_Over_Data = anal.Anal_Trafo3w_Loading(net.res_trafo3w)
 
-Summary_data_Bus_Under_Voltage = anal.Anal_Bus_Under(net.res_bus)
 
 # %% read the template and retrieve the sheets
 output = 'output_templates/output_template.xlsm'
@@ -55,7 +63,7 @@ generators_number = len(net.gen)
 lines_number = len(net.line)
 buses_number = len(net.bus)
 trafos_number = len(net.trafo)
-summary_number = len(Summary_data_Bus_Under_Voltage)
+summary_number = len(Sum_Bus_Vol_Under_Data)
 
 load_column = ['B','C','D','E','F','G','H','I']#,'J']
 gen_column = ['B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q']
@@ -267,8 +275,187 @@ I may have to make the Summary_data based on Panda data frame format
 When I add all data into one Summary_data, it becacme tuple. 
 I need to make different Summary data for each component and add it into one set
 
+
+6Dec Add
+
+Naming Convention
+
+Sum_Bus_Vol_Under
+Sum_Bus_Vol_Over
+Sum_Line_Over
+Sum_Trafo_Over
+Sum_Trafo3w_Over
+
+
+
 """
 
+Sum_Bus_Vol_Under_Data = anal.Anal_Bus_Under(net.res_bus)
+
+if Sum_Bus_Vol_Under_Data is not None :
+    for i in range(len(parameters_summary)):
+        if not parameters_summary[i] in Sum_Bus_Vol_Under_Data.keys():
+            Sum_Bus_Vol_Under_Data[parameters_summary[i]] = [None]*len(Sum_Bus_Vol_Under_Data)
+            
+    for i in range(len(Sum_Bus_Vol_Under_Data)):
+        sum_index = Sum_Bus_Vol_Under_Data.index[i]
+        sum_bus_vol_under_index = Sum_Bus_Vol_Under_Data.loc[i,['index']].to_list()
+        sum_bus_vol_under_value = Sum_Bus_Vol_Under_Data.loc[i,['value']].to_list()
+        sum_bus_vol_under_row = [step] + [sum_index] + sum_bus_vol_under_index + sum_bus_vol_under_value
+        
+        for j in range(len(sum_bus_vol_under_row)):
+            sum_bus_vol_under_line = i + initial_line + 10 + step*len(Sum_Bus_Vol_Under_Data)
+            sum_bus_vol_under_cell = summary_columm[j] + str(sum_bus_vol_under_line)
+            
+            if sum_bus_vol_under_row[j] == None:
+                sum_bus_vol_under_value_write = '---'
+            else:
+                sum_bus_vol_under_value_write = sum_bus_vol_under_row[j]
+            
+            summary_sheet[sum_bus_vol_under_cell] = sum_bus_vol_under_value_write
+            
+###############################################################
+            
+Sum_Bus_Vol_Over_Data = anal.Anal_Bus_Over(net.res_bus)
+
+if Sum_Bus_Vol_Over_Data is not None :
+    for i in range(len(parameters_summary)):
+        if not parameters_summary[i] in Sum_Bus_Vol_Over_Data.keys():
+            Sum_Bus_Vol_Over_Data[parameters_summary[i]] = [None]*len(Sum_Bus_Vol_Over_Data)
+            
+    for i in range(len(Sum_Bus_Vol_Over_Data)):
+        sum_index = Sum_Bus_Vol_Over_Data.index[i]
+        sum_bus_vol_over_index = Sum_Bus_Vol_Over_Data.loc[i,['index']].to_list()
+        sum_bus_vol_over_value = Sum_Bus_Vol_Over_Data.loc[i,['value']].to_list()
+        sum_bus_vol_over_row = [step] + [sum_index] + sum_bus_vol_over_index + sum_bus_vol_over_value
+        
+        for j in range(len(sum_bus_vol_over_row)):
+            sum_bus_vol_over_line = i + initial_line + sum_bus_vol_under_line + step*len(Sum_Bus_Vol_Over_Data)
+            sum_bus_vol_over_cell = summary_columm[j] + str(sum_bus_vol_over_line)
+            
+            if sum_bus_vol_over_row[j] == None:
+                sum_bus_vol_over_value_write = '---'
+            else:
+                sum_bus_vol_over_value_write = sum_bus_vol_over_row[j]
+            
+            summary_sheet[sum_bus_vol_over_cell] = sum_bus_vol_over_value_write
+
+
+###############################################################
+
+Sum_Line_Over_Data = anal.Anal_Line_Loading_Better(net.res_line)
+
+if Sum_Line_Over_Data is not None :
+    for i in range(len(parameters_summary)):
+        if not parameters_summary[i] in Sum_Line_Over_Data.keys():
+            Sum_Line_Over_Data[parameters_summary[i]] = [None]*len(Sum_Line_Over_Data)
+            
+    for i in range(len(Sum_Line_Over_Data)):
+        sum_index = Sum_Line_Over_Data.index[i]
+        sum_line_over_index = Sum_Line_Over_Data.loc[i,['index']].to_list()
+        sum_line_over_value = Sum_Line_Over_Data.loc[i,['value']].to_list()
+        sum_line_over_row = [step] + [sum_index] + sum_line_over_index + sum_line_over_value
+        
+        for j in range(len(sum_line_over_row)):
+            sum_line_over_line = i + initial_line + sum_bus_vol_over_line + step*len(Sum_Line_Over_Data)
+            sum_line_over_cell = summary_columm[j] + str(sum_line_over_line)
+            
+            if sum_line_over_row[j] == None:
+                sum_line_over_value_write = '---'
+            else:
+                sum_line_over_value_write = sum_line_over_row[j]
+            
+            summary_sheet[sum_line_over_cell] = sum_line_over_value_write
+            
+
+###############################################################
+Sum_Trafo_Over_Data = anal.Anal_Trafo_Loading(net.res_trafo)
+
+if Sum_Trafo_Over_Data is not None :
+    for i in range(len(parameters_summary)):
+        if not parameters_summary[i] in Sum_Trafo_Over_Data.keys():
+            Sum_Trafo_Over_Data[parameters_summary[i]] = [None]*len(Sum_Trafo_Over_Data)
+            
+    for i in range(len(Sum_Trafo_Over_Data)):
+        sum_index = Sum_Trafo_Over_Data.index[i]
+        sum_trafo_over_index = Sum_Trafo_Over_Data.loc[i,['index']].to_list()
+        sum_trafo_over_value = Sum_Trafo_Over_Data.loc[i,['value']].to_list()
+        sum_trafo_over_row = [step] + [sum_index] + sum_trafo_over_index + sum_trafo_over_value
+        
+        for j in range(len(sum_line_over_row)):
+            sum_trafo_over_line = i + initial_line + sum_line_over_line + step*len(Sum_Trafo_Over_Data)
+            sum_trafo_over_cell = summary_columm[j] + str(sum_trafo_over_line)
+            
+            if sum_trafo_over_row[j] == None:
+                sum_trafo_over_value_write = '---'
+            else:
+                sum_trafo_over_value_write = sum_trafo_over_row[j]
+            
+            summary_sheet[sum_trafo_over_cell] = sum_trafo_over_value_write
+
+
+###############################################################
+Sum_Trafo3w_Over_Data = anal.Anal_Trafo3w_Loading(net.res_trafo3w)
+
+if Sum_Trafo3w_Over_Data is not None :
+    for i in range(len(parameters_summary)):
+        if not parameters_summary[i] in Sum_Trafo3w_Over_Data.keys():
+            Sum_Trafo3w_Over_Data[parameters_summary[i]] = [None]*len(Sum_Trafo3w_Over_Data)
+            
+    for i in range(len(Sum_Trafo3w_Over_Data)):
+        sum_index = Sum_Trafo3w_Over_Data.index[i]
+        sum_trafo3w_over_index = Sum_Trafo3w_Over_Data.loc[i,['index']].to_list()
+        sum_trafo3w_over_value = Sum_Trafo3w_Over_Data.loc[i,['value']].to_list()
+        sum_trafo3w_over_row = [step] + [sum_index] + sum_trafo3w_over_index + sum_trafo3w_over_value
+        
+        for j in range(len(sum_line_over_row)):
+            sum_trafo3w_over_line = i + initial_line + sum_trafo_over_line + step*len(Sum_Trafo3w_Over_Data)
+            sum_trafo3w_over_cell = summary_columm[j] + str(sum_trafo3w_over_line)
+            
+            if sum_trafo3w_over_row[j] == None:
+                sum_trafo3w_over_value_write = '---'
+            else:
+                sum_trafo3w_over_value_write = sum_trafo3w_over_row[j]
+            
+            summary_sheet[sum_trafo3w_over_cell] = sum_trafo3w_over_value_write
+            
+            
+########################################################################
+"""
+Maybe it is better to make it a class???
+
+class excel_out_try():
+    def __init__(self):
+        self.Data_Used
+
+"""
+
+# %% Table reference, and here cell is the last cell added i.e. bottom-right corner of each table
+
+demand_table = demand_sheet.tables["demand_table"]
+generation_table = generators_sheet.tables["generation_table"]
+trafos_table = trafos_sheet.tables["trafos_table"]
+lines_table = lines_sheet.tables["lines_table"]
+bus_table = buses_sheet.tables["bus_table"]
+        
+if loads_number > 0:
+    demand_table.ref = initial_cell + ':' + load_cell
+if generators_number > 0:  
+    generation_table.ref = initial_cell + ':' + gen_cell
+if trafos_number > 0:
+    trafos_table.ref = initial_cell + ':' + trafo_cell
+if lines_number > 0:
+    lines_table.ref = initial_cell + ':' + line_cell
+if buses_number > 0:
+    bus_table.ref = initial_cell + ':' + bus_cell 
+
+# %% save with the topology and scenarios names
+
+filename = 'output_templates/results_' + network_name + '_' + scenario_name + '.xlsm'
+wb.save(filename)
+
+
+"""
 Summary_data_Bus_Voltage = anal.Anal_Bus_Under(net.res_bus)
 
 if Summary_data_Bus_Voltage is not None :
@@ -294,28 +481,4 @@ if Summary_data_Bus_Voltage is not None :
                 
                 summary_sheet[bus_sum_cell] = summary_value # update cell value
             
-
-
-# %% Table reference, and here cell is the last cell added i.e. bottom-right corner of each table
-
-demand_table = demand_sheet.tables["demand_table"]
-generation_table = generators_sheet.tables["generation_table"]
-trafos_table = trafos_sheet.tables["trafos_table"]
-lines_table = lines_sheet.tables["lines_table"]
-bus_table = buses_sheet.tables["bus_table"]
-        
-if loads_number > 0:
-    demand_table.ref = initial_cell + ':' + load_cell
-if generators_number > 0:  
-    generation_table.ref = initial_cell + ':' + gen_cell
-if trafos_number > 0:
-    trafos_table.ref = initial_cell + ':' + trafo_cell
-if lines_number > 0:
-    lines_table.ref = initial_cell + ':' + line_cell
-if buses_number > 0:
-    bus_table.ref = initial_cell + ':' + bus_cell 
-
-# %% save with the topology and scenarios names
-
-filename = 'output_templates/results_' + network_name + '_' + scenario_name + '.xlsm'
-wb.save(filename)
+"""
