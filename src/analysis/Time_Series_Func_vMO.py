@@ -16,8 +16,7 @@ from pandapower.timeseries import DFData # Dataframe datasoure that holds time s
 from pandapower.timeseries import OutputWriter #To write the outputs to HDD
 from pandapower.timeseries.run_time_series import run_timeseries #main time series function, calls the controller function to update P,Q value and run pp
 from pandapower.control import ConstControl # constant controllers, change P and Q values of sgens and loads
-
-from excel_output_vTS import  output_parameters
+from excel_output_vTS import output_parameters
 
 import Adv_network_only as addnet
 
@@ -44,10 +43,8 @@ def timeseries_example(output_dir):
     #3. Create controller
     create_controllers(net, ds)
     
-    #4. the output writer with the desired result to be sotred to files
-    
     [number, column, parameters] = output_parameters(net)
-    
+    #4. the output writer with the desired result to be sotred to files
     ow = create_output_writer(net, time_steps, output_dir = output_dir, parameters = parameters)
     
     #5. the main time series function
@@ -178,14 +175,15 @@ write the results to ".xls" Excel files. (Possible are: .json, .p, .csv)
 log the variables "p_mw" from "res_load", "vm_pu" from "res_bus" and two res_line values.
 """
 
-def create_output_writer(net, time_steps, output_dir, parameters):
+def create_output_writer(net, time_steps, output_dir, parameters): # paremeters from excel_output/output_parameters
+    
     ow = OutputWriter(net, time_steps, output_path = output_dir, output_file_type ='.xlsx', log_variables=list())
-    # these variables are saved to the HDD after/during the time loop  
-    for net_res_element in parameters:
-        res = net_res_element[0:len('res')] # considering only the result parameters, not network topology (net)
-        if res == 'res' :
-            for output_parameter in parameters[net_res_element]: # calling all the parameters within each element e.g. generator : p_mw, q__mvar, etc
-                ow.log_variable(net_res_element, output_parameter)
+    # these variables are saved to the HDD after/during the time loop
+    for res in parameters:
+        if res[0:len('res')] == 'res' :
+            for output_parameter in parameters[res]:
+                ow.log_variable(res, output_parameter)
+            
     return ow
 
 
@@ -197,13 +195,14 @@ timeseries_example(output_dir)
 
 
 
-
 #%%
 #plot the result
 """
 Basically, from create_output_writer, it export the data
 and we read that file here again, to plot the data
 """
+# import matplotlib.pyplot as plt
+#%matplotlib inline  
 def temp_files_to_excel_input(output_dir, parameters):
     # output_dir : directory path for the temporal data
     # res = res_bus / res_lines / res_trafos / etc
@@ -213,71 +212,56 @@ def temp_files_to_excel_input(output_dir, parameters):
     # output_parameter = p_mw / q_mw from the lines for example
     # results : dictionary with all the elements results
     results = {}
-    
-    for net_res_element in parameters:
-        res = net_res_element[0:len('res')] # considering only the result parameters, not network topology (net)
-        
-        if res == 'res' :
-            res_element = net_res_element
-            network_element_str = res_element[(len('res')+1):] # creating the variable as string
-            local_vars = locals() # converting the string to a variable   
-            local_vars[network_element_str] =  {}# creating the var as dict
-            
-            for output_parameter in parameters[res_element]: # calling all the parameters within each element e.g. generator : p_mw, q__mvar, etc
-                path = os.path.join(output_dir, res_element, output_parameter + '.xlsx')
-                local_vars[network_element_str][output_parameter] = pd.read_excel(path, index_col=0) # reading the values, imported as pd.datafram
+    for res in parameters.keys():
+        if res[0:len('res')] == 'res' : # only taking into account considered in the ow
+            network_element_str = res[(len('res')+1):] # creating the variable as string
+            local_vars = locals() # converting the string to a variable              
+            local_vars[network_element_str] =  {}# creatin the var as dict
+            for output_parameter in parameters[res]:
 
-            results.update({network_element_str :local_vars[network_element_str]}) # updating the dictionary that contain all the results
-            
-           
+                path = os.path.join(output_dir, res, output_parameter + '.xlsx')
+
+                local_vars[network_element_str][output_parameter] = pd.read_excel(path, index_col=0) # assigning value
+                
+            results.update(local_vars[network_element_str])
+                
+                
     return results
             
 
-
-
-
-# import matplotlib.pyplot as plt
-# #%matplotlib inline  
-
-# # voltage results
-# vm_pu_file = os.path.join(output_dir, "res_bus", "vm_pu.xlsx")
-# vm_pu = pd.read_excel(vm_pu_file, index_col=0)
-# vm_pu.plot(label="vm_pu")
-# plt.xlabel("time step")
-# plt.ylabel("voltage mag. [p.u.]")
-# plt.title("Voltage Magnitude")
-# plt.grid()
-# plt.show()
-
-# # line loading results
-# ll_file = os.path.join(output_dir, "res_line", "loading_percent.xlsx")
-# line_loading = pd.read_excel(ll_file, index_col=0)
-# line_loading.plot(label="line_loading")
-# plt.xlabel("time step")
-# plt.ylabel("line loading [%]")
-# plt.title("Line Loading")
-# plt.grid()
-# plt.show()
-
-# # load results
-# load_file = os.path.join(output_dir, "res_load", "p_mw.xlsx")
-# load = pd.read_excel(load_file, index_col=0)
-# load.plot(label="load")
-# plt.xlabel("time step")
-# plt.ylabel("P [MW]")
-# plt.grid()
-# plt.show()
-
-# # trafo loading
-# trafo_file = os.path.join(output_dir, "res_trafo", "loading_percent.xlsx")
-# trafo_loading = pd.read_excel(trafo_file, index_col=0)
-# trafo_loading.plot(label="trafo")
-# plt.xlabel("time step")
-# plt.ylabel("Transformer Loading [%]")
-# plt.grid()
-# plt.show()
-
     
+    # line loading results
+    ll_file = os.path.join(output_dir, "res_line", "loading_percent.xlsx")
+    line_loading = pd.read_excel(ll_file, index_col=0)
+    
+    # line_loading.plot(label="line_loading")
+    # plt.xlabel("time step")
+    # plt.ylabel("line loading [%]")
+    # plt.title("Line Loading")
+    # plt.grid()
+    # plt.show()
+    
+    # # load results
+    load_file = os.path.join(output_dir, "res_load", "p_mw.xlsx")
+    load = pd.read_excel(load_file, index_col=0)
+    
+    # # load.plot(label="load")
+    # # plt.xlabel("time step")
+    # # plt.ylabel("P [MW]")
+    # # plt.grid()
+    # # plt.show()
+    
+    # # trafo loading
+    trafo_file = os.path.join(output_dir, "res_trafo", "loading_percent.xlsx")
+    trafo_loading = pd.read_excel(trafo_file, index_col=0)
+    
+    # # trafo_loading.plot(label="trafo")
+    # # plt.xlabel("time step")
+    # # plt.ylabel("Transformer Loading [%]")
+    # # plt.grid()
+    # # plt.show()
+    
+        
     
 
 
