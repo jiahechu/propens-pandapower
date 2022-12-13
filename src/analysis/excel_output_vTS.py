@@ -109,70 +109,67 @@ def create_excel(network_name, scenario_name, net, results, gen_fuel_tech, numbe
     if number['loads'] > 0:    
         
         for i in range(len(parameters['net_load'])):
-            if not parameters['net_load'][i] in net.load.keys():  #check the colum of parameter
-                net.load[parameters['net_load'][i]] = [None]*number['loads'] #if the columm of parameter is empty, it creat that columm and put value as none
-        if time_steps == 1:
-            for i in range(len(parameters['res_load'])):
-                 if not parameters['res_load'][i] in net.res_load.keys():
-                     net.res_load[parameters['res_load'][i]] = [None]*number['loads']        
+            if not parameters['net_load'][i] in net.load.keys():  # check the column of parameters
+                net.load[parameters['net_load'][i]] = [None]*number['loads'] # if the columm of parameter is empty, it creat that columm and put value as none
+        if time_steps == 1: # only check if there is no time series, as for time series the selection of output is done by the functions: temp_files_to_excel_input, create_output_writer
+            for i in range(len(parameters['res_load'])): # check the column of parameters
+                 if not parameters['res_load'][i] in net.res_load.keys():  # check the colum of parameter
+                     net.res_load[parameters['res_load'][i]] = [None]*number['loads'] # if the columm of parameter is empty, it creat that columm and put value as none        
       
-        # preallocating the columns with the parameters from load
+        # preallocating the columns names with the parameters from load, this is our desired ordered excel output
         load_columns = ['step','zone','load_index','bus_index','in_service','load_voltage','p_mw','q_mvar']
         load_table = pd.DataFrame(columns = load_columns)
         
 
-       
-        for i in range(number['loads']): # extract the values from power flow results
+        # extract the values from the netowrk topology and power flow results
+        for i in range(number['loads']):
+            # from time step, here only the first iteration is donde, so '0'
             load_table.loc[i,'step'] = 0
-            # from net
+            # from network topology
             load_table.loc[i,'zone'] = net.bus.iloc[net.load.loc[i,'bus']]['zone']    
             load_table.loc[i,'load_index'] = net.load.index[i]                 
             load_table.loc[i,'bus_index'] = net.load.loc[i,'bus']     
             load_table.loc[i,'in_service'] = net.load.loc[i,'in_service']    
-            load_table.loc[i,'load_voltage'] = net.bus.iloc[net.load.loc[i,'bus']]['vn_kv'] 
-             
+            load_table.loc[i,'load_voltage'] = net.bus.iloc[net.load.loc[i,'bus']]['vn_kv']             
+            #from power flow results: without time series, directly from net.res_##; with TS, from results (dict/dataframe)
             if time_steps == 1:
-                load_table.loc[i,'p_mw'] = net.res_load.loc[i,'p_mw']  #P & Q of the load
+                load_table.loc[i,'p_mw'] = net.res_load.loc[i,'p_mw']  
                 load_table.loc[i,'q_mvar'] = net.res_load.loc[i,'q_mvar']
             else:
                 load_table.loc[i,'p_mw'] = results['load']['p_mw'].loc[0,i] 
                 load_table.loc[i,'q_mvar'] = results['load']['q_mvar'].loc[0,i] 
              
-             # results: if there is only '1' time step, directly from the pandapower network, otherwise the results were called from the temporary excel,
-             # and they were written in another format
+        # results: if there is only '1' time step, directly from the pandapower network and the 'while' loop condiction won't start
+        # otherwise the results were called from the temporary excels, and now they will be written from step 1 on
+        # first step was 0 (zero)
         step = 1
         while step < time_steps:
-            offset = step*number['loads']
-            
+            offset = step*number['loads'] # offset because all the values from all the loads and time steps are in the same table, 
+                                            #so we write each time step results under the previous one
             for i in range(number['loads']):
+                # time step
                 load_table.loc[offset + i,'step'] = step
+                # from network topology, is repeated for all the time steps
                 load_table.loc[offset + i,'zone'] = net.bus.iloc[net.load.loc[i,'bus']]['zone']    
                 load_table.loc[offset + i,'load_index'] = net.load.index[i]                 
                 load_table.loc[offset + i,'bus_index'] = net.load.loc[i,'bus']     
                 load_table.loc[offset + i,'in_service'] = net.load.loc[i,'in_service']    
                 load_table.loc[offset + i,'load_voltage'] = net.bus.iloc[net.load.loc[i,'bus']]['vn_kv'] 
-                
+                # from results, each value is taken from a different dataframe within results dict
                 load_table.loc[offset + i,'p_mw'] = results['load']['p_mw'].loc[step,i]
                 load_table.loc[offset + i,'q_mvar'] = results['load']['q_mvar'].loc[step,i]
-                
+            #we go to the next time step    
             step = step + 1
             
-             # write the values in excel table
-        
-        for i in range(load_table.shape[0]): # going to all the values in the same line/row = 
-            
-            for j in range(load_table.shape[1]): # jump to next row 
-                
-
-                load_row = initial_line + i #values start in the row 4 of the sheet               
-                load_cell = column['load'][j] + str(load_row) #update cell reference, from left to right 
-                # print('load_cell=',load_cell)
-                
-                if load_table.iloc[i,j] == None:
+        # write the values in excel table
+        for i in range(load_table.shape[0]): # going through all the rows
+            for j in range(load_table.shape[1]): # going though all the columns
+                load_row = initial_line + i #values start in the 'initial line' (row 4 of the excel sheet)               
+                load_cell = column['load'][j] + str(load_row) #update cell reference, from left to right                
+                if load_table.iloc[i,j] == None: # add --- if the value in the cell is None
                     load_value = '---'
                 else:
-                    load_value = load_table.iloc[i,j] 
-                
+                    load_value = load_table.iloc[i,j]  # add the value from the dataframe, auxiliar variable just to write the cell
                 demand_sheet[load_cell] = load_value # update cell value
      
      
