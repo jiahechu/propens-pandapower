@@ -5,6 +5,15 @@ Created on Tue Dec 13 11:31:28 2022
 @author: marti
 """
 
+
+
+output_dir = os.path.join(tempfile.gettempdir(), "propens_pandapower_time_series")
+print("Result can be found in your locan temp folder : {}".format(output_dir))
+if not os.path.exists(output_dir):
+    os.mkdir(output_dir)
+run_time_series(output_dir, network_name, scenario_name, gen_fuel_tech, output_path, net, time_steps)
+
+
 # import Adv_network_only as addnet
 # from excel_output_vTS import  output_parameters
 # import os

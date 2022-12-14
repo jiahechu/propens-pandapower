@@ -4,7 +4,7 @@ Execute the toolbox.
 from read_input import read_input
 from apply_scenario import apply_scenario
 from generate_timeseries import generate_timeseries
-
+from time_series_func import run_time_series
 
 def executor(input_setup, output_setup):
     """
@@ -31,16 +31,14 @@ def executor(input_setup, output_setup):
             net = generate_timeseries(net, ts_setup['ts_path'][0])
 
         print(net)
-
-    # As we discussed before, so far the "net" that is used below this line should include the results
-    # (as list, big df, etc)
-    # list_of_net = [net_step1, net_step2, ... ] 
     
+    # parameters to define the output file name, and its path
     network_name = output_setup['topology_name']
     scenario_name = output_setup['scenario_name']
-    gen_fuel_tech = []
     output_path = output_setup['output_path']
     
-    # create_excel(network_name, scenario_name, list_of_net, gen_fuel_tech, output_path)
-
+    gen_fuel_tech = [] # ------------------------------- to be readed --------------------------------
+       
+    run_time_series(network_name, scenario_name, gen_fuel_tech, output_path, net, time_steps)
+    
     return 0
