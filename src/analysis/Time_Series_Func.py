@@ -18,8 +18,8 @@ from pandapower.timeseries.run_time_series import run_timeseries #main time seri
 from pandapower.control import ConstControl # constant controllers, change P and Q values of sgens and loads
 
 
-from excel_output_vTS import output_parameters
-from excel_output_vTS import create_excel
+from excel_output import output_parameters
+from excel_output import create_excel
 
 
 import Adv_network_only as addnet
