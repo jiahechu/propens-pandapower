@@ -5,6 +5,7 @@ from read_input import read_input
 from apply_scenario import apply_scenario
 from generate_timeseries import generate_timeseries
 from time_series_func import run_time_series
+from excel_output import run_one_iteration
 
 def executor(input_setup, output_setup):
     """
@@ -38,7 +39,10 @@ def executor(input_setup, output_setup):
     output_path = output_setup['output_path']
     
     gen_fuel_tech = [] # ------------------------------- to be readed --------------------------------
-       
-    run_time_series(network_name, scenario_name, gen_fuel_tech, output_path, net, time_steps)
-    
+    time_steps = 1 # ---------------------- to be defined according the case --------------
+    if time_steps > 1:    
+        run_time_series(network_name, scenario_name, gen_fuel_tech, output_path, net, time_steps)
+    else:
+        run_one_iteration(network_name, scenario_name, gen_fuel_tech, output_path, net, time_steps)
+        
     return 0

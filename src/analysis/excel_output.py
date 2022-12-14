@@ -9,7 +9,7 @@ Created on Tue Nov 15 21:40:43 2022
 # import tempfile
 
 # import pandapower.networks as pn
-# import pandapower as pp
+import pandapower as pp
 import pandas as pd
 #from openpyxl import Workbook
 from openpyxl import load_workbook
@@ -17,7 +17,7 @@ from openpyxl import load_workbook
 
 # import Adv_network_only as addnet
 # import Time_Series_Func as tsf
-import Analysis_Func as anal
+# import Analysis_Func as anal
 
 
 # """
@@ -79,10 +79,8 @@ def output_parameters(net):#, Sum_Bus_Vol_Under_Data):
     return number, column, parameters
 
 
-
-
-    
-def create_excel(network_name, scenario_name, net, results, gen_fuel_tech, number, column, parameters, output_path, time_steps, output_dir):    
+   
+def create_excel(network_name, scenario_name, net, results, gen_fuel_tech, number, column, parameters, output_path, time_steps):    
     # read the template, write the results and add important parameters from the network topology
     # finally save into a new excel workbook, according to the network topology and scenario name 
     
@@ -718,7 +716,7 @@ def create_excel(network_name, scenario_name, net, results, gen_fuel_tech, numbe
     
     # %% save with the topology and scenarios names
     
-    filename = 'output_templates/results_' + network_name + '_' + scenario_name + '.xlsm'
+    filename = output_path + '/results_' + network_name + '_' + scenario_name + '.xlsm'
     wb.save(filename)
     
     
@@ -749,3 +747,20 @@ def create_excel(network_name, scenario_name, net, results, gen_fuel_tech, numbe
                     summary_sheet[bus_sum_cell] = summary_value # update cell value
                 
     """
+
+#%%
+''' 
+Running powerflow and create_exccel in case of ''1'' iteration
+'''
+
+def run_one_iteration(network_name, scenario_name, gen_fuel_tech, output_path, net, time_steps = 1):
+    
+    [number, column, parameters] = output_parameters(net)
+    results = []
+    net = pp.runpp(net)
+    create_excel(network_name, scenario_name, net, results, gen_fuel_tech, number, column, parameters, output_path, time_steps)
+    
+    return 0
+    
+    
+    
