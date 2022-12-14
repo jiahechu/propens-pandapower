@@ -11,10 +11,10 @@ from pandapower.plotting import simple_plot as plot
 from pandapower.plotting.plotly import simple_plotly
 from pandapower.networks import mv_oberrhein
 from pandapower.plotting.plotly import vlevel_plotly
-#%matplotlib inline
+#%matplotlib inline 
 
 
-#create an empty network
+#create an empty network.
 net = pp.create_empty_network()
 
 # Double busbar
