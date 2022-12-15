@@ -1,6 +1,6 @@
 """
 Test read_input.py.
-Only test bus, line, generation and load.
+Only test bus, line, switch, generation, trafo and load.
 """
 
 import unittest
@@ -12,15 +12,49 @@ class TestReadInput(unittest.TestCase):
 
     def test_buses(self):
         buses = self.net.bus
-        self.assertListEqual(buses['name'], ['Trafostation_OS', 'main_busbar', 'bus_1_1', 'bus_1_2', 'bus_1_3', 'bus_1_4',
-                                         'bus_1_5', 'bus_1_6', 'bus_2_1', 'bus_2_2'])
-        self.assertListEqual(buses['vn_kv'], [10, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4])
+        self.assertEqual(buses['name'].values.tolist(), ['Trafostation_OS', 'main_busbar', 'bus_1_1', 'bus_1_2',
+                                                             'bus_1_3', 'bus_1_4', 'bus_1_5', 'bus_1_6', 'bus_2_1',
+                                                             'bus_2_2'])
+        self.assertEqual(buses['vn_kv'].values.tolist(), [10, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4])
 
     def test_lines(self):
         lines = self.net.line
-        self.assertEqual(lines['std_type'], ['NFA2X 4x70']*8)
-        self.assertEqual(lines['from_bus'], range(1, 8))
-        self.assertEqual(lines['to_bus'], range(2, 9))
+        self.assertEqual(lines['std_type'].values.tolist(), ['NFA2X 4x70']*8)
+        self.assertEqual(lines['from_bus'].values.tolist(), [1, 2, 3, 4, 5, 6, 1, 8])
+        self.assertEqual(lines['to_bus'].values.tolist(), [2, 3, 4, 5, 6, 7, 8, 9])
+        self.assertEqual(lines['parallel'].values.tolist(), [1]*8)
+
+    def test_switches(self):
+        switches = self.net.switch
+        self.assertEqual(switches['bus'].values.tolist(), [2, 3, 4, 5, 6, 7, 8, 9])
+        self.assertEqual(switches['element'].values.tolist(), [2, 3, 4, 5, 6, 7, 8, 9])
+        self.assertEqual(switches['et'].values.tolist(), ['b']*8)
+
+    def test_loads(self):
+        loads = self.net.load
+        self.assertEqual(loads['bus'].values.tolist(), [2, 3, 4, 5, 6, 7, 8, 9])
+        self.assertEqual(loads['p_mw'].values.tolist(), [0.008]*8)
+        self.assertEqual(loads['q_mvar'].values.tolist(), [0] * 8)
+        self.assertEqual(loads['type'].values.tolist(), ['wye']*8)
+
+    def test_sgen(self):
+        sgens = self.net.sgen
+        self.assertEqual(sgens['bus'].values.tolist(), [2, 3, 4, 5, 6, 7, 8, 9])
+        self.assertEqual(sgens['p_mw'].values.tolist(), [0.006] * 8)
+        self.assertEqual(sgens['q_mvar'].values.tolist(), [0] * 8)
+        self.assertEqual(sgens['type'].values.tolist(), ['pv'] * 8)
+
+    def test_trafo(self):
+        trafo = self.net.trafo
+        self.assertEqual(trafo['hv_bus'].values.tolist(), [0])
+        self.assertEqual(trafo['lv_bus'].values.tolist(), [1])
+        self.assertEqual(trafo['std_type'].values.tolist(), ['0.1 MVA 10/0.4 kV'])
+
+    def test_ts_setup(self):
+        use_ts = self.ts_setup['use_ts']
+        ts_path = self.ts_setup['ts_path']
+        self.assertEqual(use_ts.values.tolist(), [True])
+        self.assertEqual(ts_path.values.tolist(), ['./tests/frontend/timeseries.xlsx'])
 
 
 if __name__ == '__main__':
