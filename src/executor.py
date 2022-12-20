@@ -1,14 +1,15 @@
 """
 Execute the toolbox.
 """
-from read_input import read_input
-from apply_scenario import apply_scenario
-from generate_timeseries import generate_timeseries
-from Time_Series_Func import run_time_series
-from excel_output import run_one_iteration
+from src.frontend.read_input import read_input
+from src.scenarios.apply_scenario import apply_scenario
+from src.frontend.generate_timeseries import generate_timeseries
+from src.analysis.time_series_func import run_time_series
+from src.analysis.excel_output import run_one_iteration
 
-
+# %%
 def executor(input_setup, output_setup):
+    # %%
     """
     Execute the toolbox.
 
@@ -45,5 +46,7 @@ def executor(input_setup, output_setup):
         run_time_series(network_name, scenario_name, gen_fuel_tech, output_path, net, time_steps)
     else:
         run_one_iteration(network_name, scenario_name, gen_fuel_tech, output_path, net, time_steps)
+     
         
+    #%% 
     return 0
