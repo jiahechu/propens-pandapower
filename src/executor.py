@@ -9,6 +9,7 @@ from src.analysis.excel_output import run_one_iteration
 
 # %%
 def executor(input_setup, output_setup):
+    # %%
     """
     Execute the toolbox.
 
@@ -34,6 +35,8 @@ def executor(input_setup, output_setup):
 
         print(net)
     
+    #%%
+    
     # parameters to define the output file name, and its path
     network_name = output_setup['topology_name']
     scenario_name = output_setup['scenario_name']
@@ -45,5 +48,7 @@ def executor(input_setup, output_setup):
         run_time_series(network_name, scenario_name, gen_fuel_tech, output_path, net, time_steps)
     else:
         run_one_iteration(network_name, scenario_name, gen_fuel_tech, output_path, net, time_steps)
+     
         
+    #%% 
     return 0
