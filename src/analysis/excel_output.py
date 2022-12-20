@@ -535,6 +535,9 @@ def create_excel(network_name, scenario_name, net, results, gen_fuel_tech, numbe
     
     # %% Summary Sheet
     
+    
+    
+    #%%
     # """
     # if there's sth wrong, then Anal function is called.
     # Anal function is returning certain data base of faults
