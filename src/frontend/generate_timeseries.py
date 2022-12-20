@@ -17,6 +17,7 @@ def generate_timeseries(net, ts_path):
 
     Returns:
         net: pandapower network with controllers for ts.
+        num_ts: number of time steps.
     """
     # initialize
     ts_file = pd.ExcelFile(ts_path)
@@ -40,11 +41,12 @@ def generate_timeseries(net, ts_path):
     # replace all undefined value with the last defined value, create data source
     profiles.fillna(method='backfill', axis=0, inplace=True)
     data_source = DFData(profiles)
+    num_ts = len(profiles.index)
 
     # generate controllers
     for column in profiles.columns:
         element, index, variable = column.split('-')
-        ConstControl(net, element=element, variable=variable, element_index=index,
-                     data_source=data_source, profile_name=column)
+        ConstControl(net, element=element, variable=variable, element_index=[index],
+                     data_source=data_source, profile_name=[column])
 
-    return net
+    return net, num_ts
