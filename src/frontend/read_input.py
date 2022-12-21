@@ -18,12 +18,16 @@ def read_input(scenario_path, topology_path):
     Returns:
         net: pandapower network.
         ts_setup: time series setup.
+        fuel_data: fuel data for technologies.
     """
     # init
-    tempxlsx = tempfile.NamedTemporaryFile(suffix='.xlsx')
+    tempxlsx = tempfile.NamedTemporaryFile(suffix='.xlsx', delete=False)
 
     # get time series information
     ts_setup = pd.read_excel(scenario_path, sheet_name='general')
+
+    # get fuel information
+    fuel_data = pd.read_excel(scenario_path, sheet_name='fuel')
 
     # read data from topology and scenario
     topology_xlsx = pd.ExcelFile(topology_path)
@@ -41,4 +45,4 @@ def read_input(scenario_path, topology_path):
     net = pp.from_excel(tempxlsx.name)
     tempxlsx.close()
 
-    return net, ts_setup
+    return net, ts_setup, fuel_data
