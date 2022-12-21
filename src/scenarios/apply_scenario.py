@@ -1,7 +1,7 @@
 """
 Apply pre-defined scenario to network.
 """
-import src.scenarios.scenarios as scenarios
+from src.scenarios import scenarios
 
 
 def apply_scenario(net, scenario, para):
