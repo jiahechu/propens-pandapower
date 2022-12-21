@@ -20,7 +20,7 @@ def read_input(scenario_path, topology_path):
         ts_setup: time series setup.
     """
     # init
-    tempxlsx = tempfile.NamedTemporaryFile(suffix='.xlsx')
+    tempxlsx = tempfile.NamedTemporaryFile(suffix='.xlsx', delete=False)
 
     # get time series information
     ts_setup = pd.read_excel(scenario_path, sheet_name='general')
