@@ -2,7 +2,7 @@
 script to start the toolbox.
 """
 
-from src.executor import executor
+from src import executor
 
 # summarize all input setup in a dictionary
 # available pre-defined scenarios: pv_gen, wind_gen, conventional_pp_gen, load, trafo_cap, line_cap, storage, switch
