@@ -91,7 +91,7 @@ def create_excel(network_name, scenario_name, net, results, gen_fuel_tech, numbe
     
     
     # read the template and retrieve the sheets
-    output_template = 'output_templates/output_template.xlsm'
+    output_template = 'src/analysis/output_templates/output_template.xlsm'
     wb = load_workbook(filename = output_template, read_only = False, keep_vba = True)
 
     summary_sheet = wb["Summary"]
@@ -760,7 +760,7 @@ def run_one_iteration(network_name, scenario_name, gen_fuel_tech, output_path, n
     
     [number, column, parameters] = output_parameters(net)
     results = []
-    net = pp.runpp(net)
+    pp.runpp(net)
     create_excel(network_name, scenario_name, net, results, gen_fuel_tech, number, column, parameters, output_path, time_steps)
     
     return 0

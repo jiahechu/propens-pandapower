@@ -24,29 +24,29 @@ def executor(input_setup, output_setup):
     for scenario_path, pd_scenario, pd_para in input_setup['scenario_setup']:
         # create pandapower network from Excel
         net, ts_setup, gen_fuel_tech = read_input(scenario_path, input_setup['topology_path'])
+        time_steps = 1
 
         # apply scenario from data
         if pd_scenario != '':
             net = apply_scenario(net, pd_scenario, pd_para)
-            time_steps = 1
 
         # apply time series
         if ts_setup['use_ts'][0]:
             net, time_steps = generate_timeseries(net, ts_setup['ts_path'][0])
 
         print(net)
-    # TODO: analysis once for all scenarios or once for one?
-    # parameters to define the output file name, and its path
-    network_name = output_setup['topology_name']
-    scenario_name = output_setup['scenario_name']
-    output_path = output_setup['output_path']
-    
-    gen_fuel_tech = [] # ------------------------------- to be readed --------------------------------
-    if time_steps > 1:    
-        run_time_series(network_name, scenario_name, gen_fuel_tech, output_path, net, time_steps)
-    else:
-        run_one_iteration(network_name, scenario_name, gen_fuel_tech, output_path, net, time_steps)
-     
+        # TODO: analysis once for all scenarios or once for one?
+        # parameters to define the output file name, and its path
+        network_name = output_setup['topology_name']
+        scenario_name = output_setup['scenario_name']
+        output_path = output_setup['output_path']
         
+        gen_fuel_tech = [] # ------------------------------- to be readed --------------------------------
+        if time_steps > 1:    
+            run_time_series(network_name, scenario_name, gen_fuel_tech, output_path, net, time_steps)
+        else:
+            run_one_iteration(network_name, scenario_name, gen_fuel_tech, output_path, net, time_steps)
+        
+            
     #%% 
     return 0

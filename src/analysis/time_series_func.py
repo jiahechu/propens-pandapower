@@ -63,7 +63,7 @@ def run_time_series(network_name, scenario_name, gen_fuel_tech, output_path, net
     create_output_writer(net, time_steps, output_dir = output_dir, parameters = parameters)  
 
     #. the main time series function
-    run_timeseries(net, time_steps)
+    run_timeseries(net)
   
     #. extract the results from the temporary file
     results = temp_files_to_excel_input(output_dir, parameters)
