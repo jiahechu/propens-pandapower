@@ -1,11 +1,11 @@
 """
 Execute the toolbox.
 """
-from read_input import read_input
-from apply_scenario import apply_scenario
-from generate_timeseries import generate_timeseries
-from Time_Series_Func import run_time_series
-from excel_output import run_one_iteration
+from src.frontend.read_input import read_input
+from src.frontend.generate_timeseries import generate_timeseries
+from src.scenarios.apply_scenario import apply_scenario
+from src.analysis.Time_Series_Func import run_time_series
+from src.analysis.excel_output import run_one_iteration
 
 
 def executor(input_setup, output_setup):
