@@ -38,7 +38,8 @@ def read_input(scenario_path, topology_path):
     for name in topology_xlsx.sheet_names:
         topology_xlsx.parse(sheet_name=name, index_col=0).to_excel(writer, sheet_name=name)
     for name in scenario_xlsx.sheet_names:
-        scenario_xlsx.parse(sheet_name=name, index_col=0).to_excel(writer, sheet_name=name)
+        if name != 'fuel' and name != 'general':
+            scenario_xlsx.parse(sheet_name=name, index_col=0).to_excel(writer, sheet_name=name)
     writer.close()
 
     # read network from final excel file
