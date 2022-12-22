@@ -15,7 +15,7 @@ from pandapower.timeseries.run_time_series import run_timeseries #main time seri
 
 from src.analysis.excel_output import output_parameters
 from src.analysis.excel_output import create_excel
-
+#%%
 '''
 read the temporary files created in the running of the time series
 analysis, and convert them into a dataframe that will be sent to 
@@ -49,9 +49,9 @@ def temp_files_to_excel_input(output_dir, parameters):
             
            
     return results
-
+#%%
 def run_time_series(network_name, scenario_name, gen_fuel_tech, output_path, net, time_steps):
-    
+ #%%   
     #. creating the temporary file path
     output_dir = os.path.join(tempfile.gettempdir(), "propens_pandapower_time_series")
     print("Result can be found in your locan temp folder : {}".format(output_dir))
@@ -67,12 +67,13 @@ def run_time_series(network_name, scenario_name, gen_fuel_tech, output_path, net
   
     #. extract the results from the temporary file
     results = temp_files_to_excel_input(output_dir, parameters)
-    
+#%%    
     #. Call the exxcel template, fill up with the results, and save the results in a new excel spreadsheet
-    create_excel(network_name, scenario_name, net, results, gen_fuel_tech, number, column, parameters, output_path, time_steps, output_dir)
+    create_excel(network_name, scenario_name, net, results, gen_fuel_tech, number, column, parameters, output_path, time_steps)
 
+#%%   
     return
-
+#%%
 """
 We create the output writer instead of saving the whole net that takes time.
 We extract only pre defiend outputs
