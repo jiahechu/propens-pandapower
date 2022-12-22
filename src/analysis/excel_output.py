@@ -750,8 +750,8 @@ def create_excel(network_name, scenario_name, net, results, gen_fuel_tech, numbe
     file_name =  'results_' + network_name + '_' + scenario_name + '.xlsm'
     
     wb.save(output_path + '/' + file_name)
-    print('\ Done - you can check the results with the path: ' + output_path ) 
-    print('\ Done - the results were saved in : ' + file_name) 
+    print('\n Done - you can check the results with the path: ' + output_path ) 
+    print('\n Done - the results were saved in : ' + file_name) 
     
     """
     Summary_data_Bus_Voltage = anal.Anal_Bus_Under(net.res_bus)
