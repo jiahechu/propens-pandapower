@@ -40,7 +40,7 @@ def executor(input_setup, output_setup):
         network_name = output_setup['topology_name']
         scenario_name = output_setup['scenario_name']
         output_path = output_setup['output_path']
-        
+ #%%       
         gen_fuel_tech = [] # ------------------------------- to be readed --------------------------------
         if time_steps > 1:    
             run_time_series(network_name, scenario_name, gen_fuel_tech, output_path, net, time_steps)
