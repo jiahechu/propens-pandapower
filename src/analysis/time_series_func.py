@@ -67,7 +67,7 @@ def run_time_series(network_name, scenario_name, gen_fuel_tech, output_path, net
   
     #. extract the results from the temporary file
     results = temp_files_to_excel_input(output_dir, parameters)
-#%%    
+   
     #. Call the exxcel template, fill up with the results, and save the results in a new excel spreadsheet
     create_excel(network_name, scenario_name, net, results, gen_fuel_tech, number, column, parameters, output_path, time_steps)
 
