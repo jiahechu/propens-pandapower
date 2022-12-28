@@ -116,8 +116,11 @@ def create_excel(network_name, scenario_name, net, results, gen_fuel_tech, numbe
                      net.res_load[parameters['res_load'][i]] = [None]*number['loads'] # if the columm of parameter is empty, it creat that columm and put value as none        
       
         # preallocating the columns names with the parameters from load, this is our desired ordered excel output
-        load_columns = ['step','zone','load_index','bus_index','in_service','load_voltage','p_mw','q_mvar']
-        load_table = pd.DataFrame(columns = load_columns)
+        lo_columns = ['step','zone','load_index','bus_index','in_service','load_voltage','p_mw','q_mvar']
+        lo_table = {}
+        for column_t in lo_columns:
+            lo_table[column_t] = [0]*number['loads']
+        load_table = pd.DataFrame(data = lo_table)
         
 
         # extract the values from the netowrk topology and power flow results
@@ -202,7 +205,11 @@ def create_excel(network_name, scenario_name, net, results, gen_fuel_tech, numbe
                  
         gen_columns = ['step','zone', 'bus_index', 'gen_index','fuel', 'tech','voltage','name','in_service','vm_pu',
                          'max_p_mw', 'max_q_mvar','min_p_mw','min_q_mvar','p_mw','q_mvar']
-        gen_table = pd.DataFrame(columns = gen_columns)
+    
+        ge_table = {}
+        for column_t in gen_columns:
+            ge_table[column_t] = [0]*number['generators']
+        gen_table = pd.DataFrame(data = ge_table)
    
                      
         for i in range(number['generators']): # extract the values from power flow results
@@ -299,7 +306,11 @@ def create_excel(network_name, scenario_name, net, results, gen_fuel_tech, numbe
         line_columns = ['step','zone','line_index','voltage','name','from_bus','to_bus','in_service', 
                         'length_km','max_i_ka','max_loading_percent','parallel','std_type','p_from_mw', 
                         'q_from_mvar','p_to_mw','q_to_mvar','pl_mw','ql_mvar','loading_percent']
-        line_table = pd.DataFrame(columns = line_columns)
+        li_table = {}
+        for column_t in line_columns:
+            li_table[column_t] = [0]*number['lines']
+        line_table = pd.DataFrame(data = li_table)
+        
         
         i = 0                                
         for line_index in net.line.index: # extract the values from power flow results
@@ -401,7 +412,12 @@ def create_excel(network_name, scenario_name, net, results, gen_fuel_tech, numbe
         trafo_columns = ['step','zone','trafo_index','name','std_type','hv_bus','lv_bus','vn_hv_kv','vn_lv_kv','pfe_kw',
                          'shift_degree','tap_pos','parallel','in_service','p_hv_mw','q_hv_mvar','p_lv_mw','q_lv_mvar',
                          'pl_mw','ql_mvar','loading_percent']
-        trafo_table = pd.DataFrame(columns = trafo_columns)                         
+        
+        tr_table = {}
+        for column_t in trafo_columns:
+            tr_table[column_t] = [0]*number['trafos']
+        trafo_table = pd.DataFrame(data = tr_table)
+                         
         i = 0 
         for trafo_index in net.trafo.index: # extract the values from power flow results
             trafo_table.loc[i,'step'] = 0 
@@ -423,7 +439,7 @@ def create_excel(network_name, scenario_name, net, results, gen_fuel_tech, numbe
             trafo_table.loc[i,'in_service'] = net.trafo.loc[trafo_index,'in_service']
             
             if time_steps == 1:                
-                trafo_table.loc[i,'p_hv_mw'] = net.res_trafo.loc[[trafo_index],'p_hv_mw']
+                trafo_table.loc[i,'p_hv_mw'] = net.res_trafo.loc[trafo_index,'p_hv_mw']
                 trafo_table.loc[i,'q_hv_mvar'] = net.res_trafo.loc[trafo_index,'q_hv_mvar']
                 trafo_table.loc[i,'p_lv_mw'] = net.res_trafo.loc[trafo_index,'p_lv_mw']
                 trafo_table.loc[i,'q_lv_mvar'] = net.res_trafo.loc[trafo_index,'q_lv_mvar']
@@ -502,7 +518,12 @@ def create_excel(network_name, scenario_name, net, results, gen_fuel_tech, numbe
                     net.res_bus[parameters['res_bus'][i]] = [None]*number['buses']   
                     
         bus_columns = ['step','index','zone','name','vn_kv','in_service','vm_pu','va_degree','p_mw','q_mvar']
-        bus_table = pd.DataFrame(columns = bus_columns) 
+        bu_table = {}
+        for column_t in bus_columns:
+            bu_table[column_t] = [0]*number['buses']
+        bus_table = pd.DataFrame(data = bu_table )
+        
+        
         i = 0     
         for bus_index in net.bus.index:
             bus_table.loc[i,'step'] = 0
