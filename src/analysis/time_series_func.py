@@ -31,6 +31,8 @@ def temp_files_to_excel_input(output_dir, parameters):
     # output_parameter = p_mw / q_mw from the lines for example
     # results : dictionary with all the elements results
     results = {}
+    # results_v02 = pd.DataFrame()
+    # element = pd.DataFrame()
     
     for net_res_element in parameters:
         res = net_res_element[0:len('res')] # considering only the result parameters, not network topology (net)
@@ -43,12 +45,17 @@ def temp_files_to_excel_input(output_dir, parameters):
             
             for output_parameter in parameters[res_element]: # calling all the parameters within each element e.g. generator : p_mw, q__mvar, etc
                 path = os.path.join(output_dir, res_element, output_parameter + '.xlsx')
-                local_vars[network_element_str][output_parameter] = pd.read_excel(path, index_col=0) # reading the values, imported as pd.datafram
-
+                local_vars[network_element_str][output_parameter] = pd.read_excel(path, index_col=0) # reading the values, imported as pd.datafram 
+                #parameter = pd.read_excel(path, index_col=0).T
+                #parameter['parameter'] = output_parameter  
+                #element = pd.concat([element, parameter])
+                #paramter = pd.DataFrame()
+            #element['element'] = network_element_str
             results.update({network_element_str :local_vars[network_element_str]}) # updating the dictionary that contain all the results
-            
+            #results_v02 = pd.concat([results_v02, element])
+            #element = pd.DataFrame()
            
-    return results
+    return results #,results_v02
 #%%
 def run_time_series(network_name, scenario_name, gen_fuel_tech, output_path, net, time_steps):
  #%%   
