@@ -8,21 +8,20 @@ Created on Wed Dec 28 16:45:28 2022
 #from openpyxl import Workbook
 # from openpyxl import load_workbook
 from tqdm import tqdm
+from src.analysis.parameters import preallocate_table
 
-def sort_load_results(net, number, load_table, time_steps, load): 
+#%%
+def sort_load_results(net, number, time_steps, load, column, parameters): 
     # extract the values from the netowrk topology and power flow results
+    load_table = preallocate_table('load', column, number)
+    element = 'load'
     i = 0
     for load_index in net.load.index:
         # from time step, here only the first iteration is donde, so '0'
         load_table.loc[i,'step'] = 0
         # from network topology
-        bus_index = net.load.loc[load_index,'bus']
-        bus_row = net.bus.index.to_list().index(bus_index) 
-        load_table.loc[i,'zone'] = net.bus.iloc[bus_row]['zone']    
-        load_table.loc[i,'load_index'] = load_index                
-        load_table.loc[i,'bus_index'] = net.load.loc[load_index,'bus']     
-        load_table.loc[i,'in_service'] = net.load.loc[load_index,'in_service']    
-        load_table.loc[i,'load_voltage'] = net.bus.iloc[bus_row]['vn_kv']             
+        load_table.loc[i,'index'] = load_index 
+        load_table.loc[i,parameters['net_' + element]] = net.load.loc[load_index, parameters['net_' + element]]                
         #from power flow results: without time series, directly from net.res_##; with TS, from results (dict/dataframe)
         if time_steps == 1:
             load_table.loc[i,'p_mw'] = net.res_load.loc[load_index,'p_mw']  
@@ -43,13 +42,8 @@ def sort_load_results(net, number, load_table, time_steps, load):
             # time step
             load_table.loc[offset + i,'step'] = step
             # from network topology, is repeated for all the time steps
-            bus_index = net.load.loc[i,'bus']
-            bus_row = net.bus.index.to_list().index(bus_index) 
-            load_table.loc[offset + i,'zone'] = net.bus.iloc[bus_row]['zone']    
-            load_table.loc[offset + i,'load_index'] = load_index                 
-            load_table.loc[offset + i,'bus_index'] = net.load.loc[load_index,'bus']     
-            load_table.loc[offset + i,'in_service'] = net.load.loc[load_index,'in_service']    
-            load_table.loc[offset + i,'load_voltage'] = net.bus.iloc[bus_row]['vn_kv'] 
+            load_table.loc[offset + i,'index'] = load_index  
+            load_table.loc[offset + i,parameters['net_' + element]] = net.load.loc[load_index, parameters['res_' + element]] 
             # from results, each value is taken from a different dataframe within results dict
             load_table.loc[offset + i,'p_mw'] = load['p_mw'].loc[step,load_index]
             load_table.loc[offset + i,'q_mvar'] = load['q_mvar'].loc[step,load_index]
@@ -59,29 +53,15 @@ def sort_load_results(net, number, load_table, time_steps, load):
             
     return load_table
 
-def sort_gen_results(net, number, gen_table, time_steps, gen, gen_fuel_tech): 
-                    
-    for i in range(number['generators']): # extract the values from power flow results
+def sort_gen_results(net, number, time_steps, gen, gen_fuel_tech, column, parameters): 
+    gen_table = preallocate_table('gen', column, number)
+    element = 'gen'
+    i = 0
+    for i in range(number['gen']): # extract the values from power flow results
         gen_table.loc[i,'step'] = 0 
         
-        bus_index = net.gen.loc[i,'bus']
-        bus_row = net.bus.index.to_list().index(bus_index) 
-        gen_table.loc[i,'zone'] = net.bus.iloc[bus_row]['zone']
-        gen_table.loc[i,'bus_index'] = net.gen.loc[i,'bus']
-        gen_table.loc[i,'gen_index'] = net.gen.index[i]
-        
-        gen_table.loc[i,'fuel'] = gen_fuel_tech.loc[i,'fuel']
-        gen_table.loc[i,'tech'] = gen_fuel_tech.loc[i,'tech']
-        
-        gen_table.loc[i,'voltage'] = net.bus.iloc[bus_row]['vn_kv']
-         
-        gen_table.loc[i,'name'] = net.gen.loc[i,'name']
-        gen_table.loc[i,'in_service'] =  net.gen.loc[i,'in_service']
-        gen_table.loc[i,'vm_pu'] =  net.gen.loc[i,'vm_pu']
-        gen_table.loc[i,'max_p_mw'] =  net.gen.loc[i,'max_p_mw']
-        gen_table.loc[i,'max_q_mvar'] =  net.gen.loc[i,'max_q_mvar']
-        gen_table.loc[i,'min_p_mw'] =  net.gen.loc[i,'min_p_mw']
-        gen_table.loc[i,'min_q_mvar'] =  net.gen.loc[i,'min_q_mvar']
+        gen_table.loc[i,'index'] = net.gen.index[i]
+        gen_table.loc[i,parameters['net_' + element]] = net.gen.loc[i,parameters['net_' + element]]
          
         if time_steps == 1:
             gen_table.loc[i,'p_mw'] = net.res_gen.loc[i,'p_mw']
@@ -93,29 +73,13 @@ def sort_gen_results(net, number, gen_table, time_steps, gen, gen_fuel_tech):
              
     print('\n Sorting the results: generators - 2/5')
     for step in tqdm(range(1,time_steps,1)):
-        offset = step*number['generators']
+        offset = step*number['gen']
                 
-        for i in range(number['generators']): 
+        for i in range(number['gen']): 
             gen_table.loc[offset + i,'step'] = step
-            
-            bus_index = net.gen.loc[i,'bus']
-            bus_row = net.bus.index.to_list().index(bus_index) 
-            gen_table.loc[offset + i,'zone' ] = net.bus.iloc[bus_row]['zone']
-            gen_table.loc[offset + i,'bus_index'] = net.gen.loc[i,'bus']
-            gen_table.loc[offset + i,'gen_index'] = net.gen.index[i]
+            gen_table.loc[offset + i,'index'] = net.gen.index[i]
              
-            gen_table.loc[offset + i,'fuel'] = gen_fuel_tech.loc[i,'fuel']
-            gen_table.loc[offset + i,'tech'] = gen_fuel_tech.loc[i,'tech']
-             
-            gen_table.loc[offset + i,'voltage'] = net.bus.iloc[bus_row]['vn_kv']
-             
-            gen_table.loc[offset + i,'name'] = net.gen.loc[i,'name']
-            gen_table.loc[offset + i,'in_service'] =  net.gen.loc[i,'in_service']
-            gen_table.loc[offset + i,'vm_pu'] =  net.gen.loc[i,'vm_pu']
-            gen_table.loc[offset + i,'max_p_mw'] =  net.gen.loc[i,'max_p_mw']
-            gen_table.loc[offset + i,'max_q_mvar'] =  net.gen.loc[i,'max_q_mvar']
-            gen_table.loc[offset + i,'min_p_mw'] =  net.gen.loc[i,'min_p_mw']
-            gen_table.loc[offset + i,'min_q_mvar'] =  net.gen.loc[i,'min_q_mvar']
+            gen_table.loc[offset + i, parameters['net_' + element]] = net.gen.loc[i,parameters['net_' + element]]
              
             gen_table.loc[offset + i,'p_mw'] = gen['p_mw'].loc[step,i] 
             gen_table.loc[offset + i,'q_mvar'] = gen['q_mvar'].loc[step,i]
@@ -125,34 +89,19 @@ def sort_gen_results(net, number, gen_table, time_steps, gen, gen_fuel_tech):
     return gen_table
 
 
-def sort_line_results(net, number, line_table, time_steps, line): 
+def sort_line_results(net, number, time_steps, line, column, parameters): 
+    line_table = preallocate_table('line', column, number)
+    element = 'line'
     i = 0                                
     for line_index in net.line.index: # extract the values from power flow results
         line_table.loc[i,'zone'] = 0
-    
-        bus_index = net.line.loc[line_index ,'from_bus']
-        bus_row = net.bus.index.to_list().index(bus_index) 
-        line_table.loc[i,'zone'] = net.bus.iloc[bus_row]['zone']
-        line_table.loc[i,'line_index'] = line_index
-        line_table.loc[i,'voltage'] = net.bus.iloc[bus_row]['vn_kv']
-        line_table.loc[i,'name'] = net.line.loc[line_index ,'name']
-        line_table.loc[i,'from_bus'] = net.line.loc[line_index ,'from_bus']
-        line_table.loc[i,'to_bus'] = net.line.loc[line_index ,'to_bus']
-        line_table.loc[i,'in_service'] = net.line.loc[line_index ,'in_service']
-        line_table.loc[i,'length_km'] = net.line.loc[line_index ,'length_km']
-        line_table.loc[i,'max_i_ka'] = net.line.loc[line_index ,'max_i_ka']
-        line_table.loc[i,'max_loading_percent'] = net.line.loc[line_index ,'max_loading_percent']
-        line_table.loc[i,'parallel'] = net.line.loc[line_index ,'parallel']
-        line_table.loc[i,'std_type'] = net.line.loc[line_index ,'std_type']
+
+        line_table.loc[i,'index'] = line_index
+        line_table.loc[i,parameters['net_' + element]] = net.line.loc[line_index, parameters['net_' + element]]
          
         if time_steps == 1:
-            line_table.loc[i,'p_from_mw'] = net.res_line.loc[line_index ,'p_from_mw']
-            line_table.loc[i,'q_from_mvar'] = net.res_line.loc[line_index ,'q_from_mvar']
-            line_table.loc[i,'p_to_mw'] = net.res_line.loc[line_index ,'p_to_mw']
-            line_table.loc[i,'q_to_mvar'] = net.res_line.loc[line_index ,'q_to_mvar']
-            line_table.loc[i,'pl_mw'] = net.res_line.loc[line_index ,'pl_mw']
-            line_table.loc[i,'ql_mvar'] = net.res_line.loc[line_index ,'ql_mvar']
-            line_table.loc[i,'loading_percent'] = net.res_line.loc[line_index ,'loading_percent']
+            line_table.loc[i, parameters['res_' + element]] = net.res_line.loc[line_index ,parameters['res_' + element]]
+
         else: 
             line_table.loc[i,'p_from_mw'] = line['p_from_mw'].loc[0,line_index ]
             line_table.loc[i,'q_from_mvar'] =  line['q_from_mvar'].loc[0,line_index ]
@@ -162,30 +111,17 @@ def sort_line_results(net, number, line_table, time_steps, line):
             line_table.loc[i,'ql_mvar'] =  line['ql_mvar'].loc[0,line_index ]
             line_table.loc[i,'loading_percent'] =  line['loading_percent'].loc[0,line_index ]
         i = i + 1    
-        
 
     print('\n Sorting the results: lines - 3/5')
     for step in tqdm(range(1,time_steps,1)):
-        offset = step*number['lines']
+        offset = step*number['line']
         i = 0        
         for line_index in net.line.index: 
             line_table.loc[offset + i,'step'] = step
             
-            bus_index = net.line.loc[line_index,'from_bus']
-            bus_row = net.bus.index.to_list().index(bus_index) 
-            line_table.loc[offset + i,'zone'] = net.bus.iloc[bus_row]['zone']
-            line_table.loc[offset + i,'line_index'] = line_index
-            line_table.loc[offset + i,'voltage'] = net.bus.iloc[bus_row]['vn_kv']
-            line_table.loc[offset + i,'name'] = net.line.loc[line_index ,'name']
-            line_table.loc[offset + i,'from_bus'] = net.line.loc[line_index ,'from_bus']
-            line_table.loc[offset + i,'to_bus'] = net.line.loc[line_index ,'to_bus']
-            line_table.loc[offset + i,'in_service'] = net.line.loc[line_index ,'in_service']
-            line_table.loc[offset + i,'length_km'] = net.line.loc[line_index ,'length_km']
-            line_table.loc[offset + i,'max_i_ka'] = net.line.loc[line_index ,'max_i_ka']
-            line_table.loc[offset + i,'max_loading_percent'] = net.line.loc[line_index ,'max_loading_percent']
-            line_table.loc[offset + i,'parallel'] = net.line.loc[line_index ,'parallel']
-            line_table.loc[offset + i,'std_type'] = net.line.loc[line_index ,'std_type']
-  
+            line_table.loc[offset + i,'index'] = line_index
+            line_table.loc[offset + i, parameters['res_' + element]] = net.res_line.loc[line_index ,parameters['res_' + element]]
+            
             line_table.loc[offset + i,'p_from_mw'] = line['p_from_mw'].loc[step,line_index ]
             line_table.loc[offset + i,'q_from_mvar'] =  line['q_from_mvar'].loc[step,line_index ]
             line_table.loc[offset + i,'p_to_mw'] =  line['p_to_mw'].loc[step,line_index ]
@@ -199,35 +135,18 @@ def sort_line_results(net, number, line_table, time_steps, line):
     return line_table 
 
 
-def sort_trafo_results(net, number, trafo_table, time_steps, trafo):             
+def sort_trafo_results(net, number, time_steps, trafo, column, parameters): 
+    trafo_table = preallocate_table('trafo', column, number)        
+    element = 'trafo'    
     i = 0 
     for trafo_index in net.trafo.index: # extract the values from power flow results
         trafo_table.loc[i,'step'] = 0 
         
-        bus_index = net.trafo.loc[trafo_index,'hv_bus']
-        bus_row = net.bus.index.to_list().index(bus_index) 
-        trafo_table.loc[i,'zone'] = net.bus.iloc[bus_row]['zone']
-        trafo_table.loc[i,'trafo_index'] = trafo_index
-        trafo_table.loc[i,'name'] = net.trafo.loc[trafo_index,'name']
-        trafo_table.loc[i,'std_type'] = net.trafo.loc[trafo_index,'std_type']
-        trafo_table.loc[i,'hv_bus'] = net.trafo.loc[trafo_index,'hv_bus']
-        trafo_table.loc[i,'lv_bus'] = net.trafo.loc[trafo_index,'lv_bus']
-        trafo_table.loc[i,'vn_hv_kv'] = net.trafo.loc[trafo_index,'vn_hv_kv']
-        trafo_table.loc[i,'vn_lv_kv'] = net.trafo.loc[trafo_index,'vn_lv_kv']
-        trafo_table.loc[i,'pfe_kw'] = net.trafo.loc[trafo_index,'pfe_kw']
-        trafo_table.loc[i,'shift_degree'] = net.trafo.loc[trafo_index,'shift_degree']
-        trafo_table.loc[i,'tap_pos'] = net.trafo.loc[trafo_index,'tap_pos']
-        trafo_table.loc[i,'parallel'] = net.trafo.loc[trafo_index,'parallel']
-        trafo_table.loc[i,'in_service'] = net.trafo.loc[trafo_index,'in_service']
+        trafo_table.loc[i,'index'] = trafo_index
+        trafo_table.loc[i,parameters['net_' + element]] = net.trafo.loc[trafo_index, parameters['net_' + element]]
         
         if time_steps == 1:                
-            trafo_table.loc[i,'p_hv_mw'] = net.res_trafo.loc[trafo_index,'p_hv_mw']
-            trafo_table.loc[i,'q_hv_mvar'] = net.res_trafo.loc[trafo_index,'q_hv_mvar']
-            trafo_table.loc[i,'p_lv_mw'] = net.res_trafo.loc[trafo_index,'p_lv_mw']
-            trafo_table.loc[i,'q_lv_mvar'] = net.res_trafo.loc[trafo_index,'q_lv_mvar']
-            trafo_table.loc[i,'pl_mw'] = net.res_trafo.loc[trafo_index,'pl_mw']
-            trafo_table.loc[i,'ql_mvar'] =net.res_trafo.loc[trafo_index,'ql_mvar']
-            trafo_table.loc[i,'loading_percent'] = net.res_trafo.loc[trafo_index,'loading_percent']
+            trafo_table.loc[i,parameters['res_' + element]] = net.res_trafo.loc[trafo_index, parameters['res_' + element]]
         else: 
             trafo_table.loc[i,'p_hv_mw'] = trafo['p_hv_mw'].loc[0,trafo_index] 
             trafo_table.loc[i,'q_hv_mvar'] = trafo['q_hv_mvar'].loc[0,trafo_index] 
@@ -245,22 +164,9 @@ def sort_trafo_results(net, number, trafo_table, time_steps, trafo):
         for trafo_index in net.trafo.index: 
             trafo_table.loc[offset + i,'step'] = step
             
-            bus_index = net.trafo.loc[trafo_index,'hv_bus']
-            bus_row = net.bus.index.to_list().index(bus_index) 
-            trafo_table.loc[offset + i,'zone'] = net.bus.iloc[bus_row]['zone']
-            trafo_table.loc[offset + i,'trafo_index'] = trafo_index
-            trafo_table.loc[offset + i,'name'] = net.trafo.loc[trafo_index,'name']
-            trafo_table.loc[offset + i,'std_type'] = net.trafo.loc[trafo_index,'std_type']
-            trafo_table.loc[offset + i,'hv_bus'] = net.trafo.loc[trafo_index,'hv_bus']
-            trafo_table.loc[offset + i,'lv_bus'] = net.trafo.loc[trafo_index,'lv_bus']
-            trafo_table.loc[offset + i,'vn_hv_kv'] = net.trafo.loc[trafo_index,'vn_hv_kv']
-            trafo_table.loc[offset + i,'vn_lv_kv'] = net.trafo.loc[trafo_index,'vn_lv_kv']
-            trafo_table.loc[offset + i,'pfe_kw'] = net.trafo.loc[trafo_index,'pfe_kw']
-            trafo_table.loc[offset + i,'shift_degree'] = net.trafo.loc[trafo_index,'shift_degree']
-            trafo_table.loc[offset + i,'tap_pos'] = net.trafo.loc[trafo_index,'tap_pos']
-            trafo_table.loc[offset + i,'parallel'] = net.trafo.loc[trafo_index,'parallel']
-            trafo_table.loc[offset + i,'in_service'] = net.trafo.loc[trafo_index,'in_service']
-               
+            trafo_table.loc[offset + i,'index'] = trafo_index
+            trafo_table.loc[offset + i,parameters['net_' + element]] = net.trafo.loc[trafo_index, parameters['net_' + element]]
+            
             trafo_table.loc[offset + i,'p_hv_mw'] = trafo['p_hv_mw'].loc[step,trafo_index] 
             trafo_table.loc[offset + i,'q_hv_mvar'] = trafo['q_hv_mvar'].loc[step,trafo_index] 
             trafo_table.loc[offset + i,'p_lv_mw'] = trafo['p_lv_mw'].loc[step,trafo_index] 
@@ -274,22 +180,18 @@ def sort_trafo_results(net, number, trafo_table, time_steps, trafo):
     return trafo_table
 
 
-def sort_bus_results(net, number, bus_table, time_steps, bus):    
+def sort_bus_results(net, number, time_steps, bus, column, parameters):    
+    bus_table = preallocate_table('bus', column, number)
+    element = 'bus'
     i = 0     
     for bus_index in net.bus.index:
         bus_table.loc[i,'step'] = 0
         
         bus_table.loc[i,'index'] = bus_index
-        bus_table.loc[i,'zone'] = net.bus.loc[bus_index,'zone']
-        bus_table.loc[i,'name'] = net.bus.loc[bus_index,'name']
-        bus_table.loc[i,'vn_kv'] = net.bus.loc[bus_index,'vn_kv']
-        bus_table.loc[i,'in_service'] = net.bus.loc[bus_index,'in_service']
+        bus_table.loc[i,parameters['net_' + element]] = net.bus.loc[bus_index, parameters['net_' + element]]
         
         if time_steps == 1:
-            bus_table.loc[i,'vm_pu'] = net.res_bus.loc[bus_index,'vm_pu']
-            bus_table.loc[i,'va_degree'] = net.res_bus.loc[bus_index,'va_degree']
-            bus_table.loc[i,'p_mw'] = net.res_bus.loc[bus_index,'p_mw']
-            bus_table.loc[i,'q_mvar'] = net.res_bus.loc[bus_index,'q_mvar']
+            bus_table.loc[i,parameters['res_' + element]] = net.res_bus.loc[bus_index, parameters['res_' + element]]
         else: 
             bus_table.loc[i,'vm_pu'] = bus['vm_pu'].loc[0,bus_index]
             bus_table.loc[i,'va_degree'] = bus['va_degree'].loc[0,bus_index]
@@ -305,10 +207,7 @@ def sort_bus_results(net, number, bus_table, time_steps, bus):
             bus_table.loc[offset + i,'step'] = step
             
             bus_table.loc[offset + i,'index'] = bus_index
-            bus_table.loc[offset + i,'zone'] = net.bus.loc[bus_index,'zone']
-            bus_table.loc[offset + i,'name'] = net.bus.loc[bus_index,'name']
-            bus_table.loc[offset + i,'vn_kv'] = net.bus.loc[bus_index,'vn_kv']
-            bus_table.loc[offset + i,'in_service'] = net.bus.loc[bus_index,'in_service']
+            bus_table.loc[offset + i,parameters['net_' + element]] = net.bus.loc[bus_index, parameters['net_' + element]]
             
             bus_table.loc[offset + i,'vm_pu'] = bus['vm_pu'].loc[step,bus_index]
             bus_table.loc[offset + i,'va_degree'] = bus['va_degree'].loc[step,bus_index]
