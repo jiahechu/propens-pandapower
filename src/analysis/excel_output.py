@@ -7,20 +7,51 @@ Created on Tue Nov 15 21:40:43 2022
 
 # import os
 # import tempfile
-
 # import pandapower.networks as pn
 import pandapower as pp
-import pandas as pd
-#from openpyxl import Workbook
+import numpy as np
+# import pandas as pd
 from openpyxl import load_workbook
 from tqdm import tqdm
-#from openpyxl.worksheet.table import Table, TableStyleInfo
+
 from src.analysis.sort_results import sort_load_results 
 from src.analysis.sort_results import sort_gen_results
 from src.analysis.sort_results import sort_line_results
 from src.analysis.sort_results import sort_trafo_results
 from src.analysis.sort_results import sort_bus_results
 
+from src.analysis.parameters import output_parameters
+from src.analysis.parameters import check_bus
+from src.analysis.parameters import check_gen
+from src.analysis.parameters import check_load
+from src.analysis.parameters import check_line
+from src.analysis.parameters import check_trafo
+
+#%%
+
+def write_in_the_excel(table, sheet, element, column, initial_line):
+    print('Now writing into the excel file')
+    
+    # j=0
+    # for column_title in table.keys():
+    #     row = initial_line
+    #     cell = column['letter'][element][j] + str(row)
+    #     sheet[cell] = column_title
+    #     j = j + 1
+        
+    for i in tqdm(range(table.shape[0])): # going through all the rows
+        for j in range(table.shape[1]): # going though all the columns
+            row = initial_line + 1 + i #values start in the 'initial line' (row 4 of the excel sheet)               
+            cell = column['letter'][element][j] + str(row) #update cell reference, from left to right                
+            if table.iloc[i,j] == None or str(table.iloc[i,j]) == 'nan': # add --- if the value in the cell is None
+                value = '---'
+            else:
+                value = table.iloc[i,j]  # add the value from the dataframe, auxiliar variable just to write the cell
+            sheet[cell] = value # update cell value
+            # print(j)
+            # print(cell)
+            # print(value)
+    return cell
 
 #%%
 # import Adv_network_only as addnet
@@ -51,207 +82,76 @@ from src.analysis.sort_results import sort_bus_results
 # Sum_Bus_Vol_Over_Data = anal.Anal_Bus_Over(net.res_bus)
 # Sum_Trafo_Over_Data = anal.Anal_Trafo_Loading(net.res_trafo)
 # Sum_Trafo3w_Over_Data = anal.Anal_Trafo3w_Loading(net.res_trafo3w)
-
-def output_parameters(net):#, Sum_Bus_Vol_Under_Data):
-    # Preallocate values: number of loads/gen/buses/trafos/lines, and columns in the excel template and their names
-    
-    # based on the network topology, the quentity of elements are counted
-    number = { 'loads' : len(net.load),
-               'generators' : len(net.gen),
-               'lines' : len(net.line),
-               'buses' : len(net.bus),
-               'trafos' : len(net.trafo)}#,
-               #'summary' : len(Sum_Bus_Vol_Under_Data) }
-    
-    # according to the desired excel output, the corresponding columns are assigning to each element
-    column = { 'load' : ['B','C','D','E','F','G','H','I'],
-              'gen' : ['B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q'],
-              'line' : ['B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U'],
-              'trafo' : ['B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V'],
-              'bus' : ['B','C','D','E','F','G','H','I','J','K'],
-              'summary' : ['B', 'C', 'D' ,'E', 'F'] }
-    
-    #  according to the desired excel output, the corresponding output_parameters by element are selected
-    parameters = {'net_load' : ['zone','bus','vn_kv','in_service'],
-                  'net_gen' : ['bus','name','in_service','vm_pu', 'max_p_mw', 'max_q_mvar','min_p_mw','min_q_mvar'],
-                  'net_line' : ['name','from_bus','to_bus', 'in_service','length_km', 'max_i_ka','max_loading_percent', 'parallel', 'std_type'],
-                  'net_trafo' : ['name', 'std_type', 'hv_bus', 'lv_bus', 'vn_hv_kv', 'vn_lv_kv', 'pfe_kw', 'shift_degree','tap_pos', 'parallel', 'in_service' ],
-                  'net_bus' : ['zone','name','vn_kv','in_service'],
-                  'res_load' : ['p_mw','q_mvar'],
-                  'res_gen' : ['p_mw','q_mvar'],
-                  'res_line' : ['p_from_mw', 'q_from_mvar', 'p_to_mw', 'q_to_mvar', 'pl_mw', 'ql_mvar', 'loading_percent'],
-                  'res_trafo' : ['p_hv_mw','q_hv_mvar', 'p_lv_mw', 'q_lv_mvar', 'pl_mw', 'ql_mvar', 'loading_percent'],
-                  'res_bus' : ['vm_pu','va_degree','p_mw','q_mvar'],
-                  'summary' : ['component','Percentage','Extra Info'] }
-    
-    return number, column, parameters
-
-
    
 def create_excel(network_name, scenario_name, net, results, gen_fuel_tech, number, column, parameters, output_path, time_steps):    
     # read the template, write the results and add important parameters from the network topology
     # finally save into a new excel workbook, according to the network topology and scenario name 
     #%%  
     # cell in the template were all the tables start
-    initial_cell = 'B3' # row 3: all the parameters names
+    initial_cell = 'C4' # row 3: all the parameters names
     initial_line = 4 # row 4: where the fisrt line of parameter values are written
     # read the template and retrieve the sheets
     output_template = 'src/analysis/output_templates/output_template.xlsm'
     wb = load_workbook(filename = output_template, read_only = False, keep_vba = True)   
-    
+    cell = {} # preallocate dictionary with last cell of tables, for references
     # %% Demand Sheet
-    if number['loads'] > 0:  # if there is no load, jump to the next element            
-        for i in range(len(parameters['net_load'])): 
-            if not parameters['net_load'][i] in net.load.keys():  # check the column of parameters
-                net.load[parameters['net_load'][i]] = [None]*number['loads'] # if the columm of parameter is empty, it creat that columm and put value as none
-        if time_steps == 1: # only check if there is no time series, as for time series the selection of output is done by the functions: temp_files_to_excel_input, create_output_writer
-            for i in range(len(parameters['res_load'])): # check the column of parameters
-                 if not parameters['res_load'][i] in net.res_load.keys():  # check the colum of parameter
-                     net.res_load[parameters['res_load'][i]] = [None]*number['loads'] # if the columm of parameter is empty, it creat that columm and put value as none        
-        # preallocating the columns names with the parameters from load, this is our desired ordered excel output
-        lo_columns = ['step','zone','load_index','bus_index','in_service','load_voltage','p_mw','q_mvar']
-        lo_table = {}
-        for column_t in lo_columns:
-            lo_table[column_t] = [0]*number['loads']
-        load_table = pd.DataFrame(data = lo_table) # preallocating the dataframe 
-        load_table = sort_load_results(net, number, load_table, time_steps,results['load']) # read the values from results, and sort them for the output
+    if number['load'] > 0:  # if there is no load, jump to the next element            
+        # checking values of the parameters, and adding columns and/or formatting them    
+        net = check_load(net, time_steps, parameters, number) 
+        # read the values from results, and sort them for the output
+        load_table = sort_load_results(net, number, time_steps, results['load'], column, parameters) 
         # write the values in excel table
-        print('Now writing into the excel file')
-        for i in tqdm(range(load_table.shape[0])): # going through all the rows
-            for j in range(load_table.shape[1]): # going though all the columns
-                load_row = initial_line + i #values start in the 'initial line' (row 4 of the excel sheet)               
-                load_cell = column['load'][j] + str(load_row) #update cell reference, from left to right                
-                if load_table.iloc[i,j] == None: # add --- if the value in the cell is None
-                    load_value = '---'
-                else:
-                    load_value = load_table.iloc[i,j]  # add the value from the dataframe, auxiliar variable just to write the cell
-                wb["Demand"][load_cell] = load_value # update cell value
+        cell['load'] = write_in_the_excel(load_table, wb['Demand'], 'load', column, initial_line)
+        # delete the results and table to free memory
         del results['load']
         del load_table
      
      # %% Generation's sheet     
-    if number['generators'] > 0:#check if there is any generators, could be that there is an external grid only
-        for i in range(len(parameters['net_gen'])):
-             if not parameters['net_gen'][i] in net.gen.keys():
-                 net.gen[parameters['net_gen'][i]] = [None]*number['generators']
-        if time_steps == 1:
-            for i in range(len(parameters['res_gen'])):
-                 if not parameters['res_gen'][i] in net.res_gen.keys():
-                     net.res_gen[parameters['res_gen'][i]] = [None]*number['generators']         
-        if not len(gen_fuel_tech) > 0:
-             d = {'fuel': ['---'], 'tech': ['---']}
-             gen_fuel_tech = pd.DataFrame(data = d)
-             df_aux = pd.DataFrame(data = d)
-             for i in range(number['generators']):
-                 gen_fuel_tech = pd.concat([gen_fuel_tech, df_aux],ignore_index=True)         
-                 
-        gen_columns = ['step','zone', 'bus_index', 'gen_index','fuel', 'tech','voltage','name','in_service','vm_pu',
-                         'max_p_mw', 'max_q_mvar','min_p_mw','min_q_mvar','p_mw','q_mvar']
-        ge_table = {}
-        for column_t in gen_columns:
-            ge_table[column_t] = [0]*number['generators']
-        gen_table = pd.DataFrame(data = ge_table)   
-        gen_table = sort_gen_results(net, number, gen_table, time_steps,results['gen'],gen_fuel_tech)                  
-        print('Now writing into the excel file')
-        for i in tqdm(range(gen_table.shape[0])): # going to all the values in the same line/row = 
-            for j in range(gen_table.shape[1]): # jump to next row 
-                gen_row = initial_line + i #values start in the row 4 of the sheet
-                gen_cell = column['gen'][j] + str(gen_row) #update cell reference, from left to right 
-                if gen_table.iloc[i,j] == None:
-                    gen_value = '---'
-                else:
-                    gen_value = gen_table.iloc[i,j] 
-                wb["Generation"][gen_cell] = gen_value # update cell value
+    if number['gen'] > 0:#check if there is any generators, could be that there is an external grid only
+        # checking values of the parameters, and adding columns and/or formatting them    
+        net = check_gen(net, time_steps, parameters, number, gen_fuel_tech) 
+        # read the values from results, and sort them for the output
+        gen_table = sort_gen_results(net, number, time_steps, results['gen'],gen_fuel_tech, column, parameters)                  
+        # write the values in excel table
+        cell['gen'] = write_in_the_excel(gen_table, wb["Generation"], 'gen', column, initial_line)
+        # delete the results and table to free memory
         del results['gen']
         del gen_table
     else:
         print('\n No generators in the net - 2/5')
       
      # %% Lines' sheet   
-    if number['lines'] > 0:     
-        for i in range(len(parameters['net_line'])):
-             if not parameters['net_line'][i] in net.line.keys():
-                 net.line[parameters['net_line'][i]] = [None]*number['lines']
-        if time_steps == 1:
-             for i in range(len(parameters['res_line'])):
-                 if not parameters['res_line'][i] in net.res_line.keys():
-                     net.res_line[parameters['res_line'][i]] = [None]*number['lines']                                          
-        line_columns = ['step','zone','line_index','voltage','name','from_bus','to_bus','in_service', 
-                        'length_km','max_i_ka','max_loading_percent','parallel','std_type','p_from_mw', 
-                        'q_from_mvar','p_to_mw','q_to_mvar','pl_mw','ql_mvar','loading_percent']
-        li_table = {}
-        for column_t in line_columns:
-            li_table[column_t] = [0]*number['lines']
-        line_table = pd.DataFrame(data = li_table)
-        line_table = sort_line_results(net, number, line_table, time_steps,results['line'])
-        print('Now writing into the excel file')
-        for i in tqdm(range(line_table.shape[0])): # going to all the values in the same line/row = 
-            for j in range(line_table.shape[1]): # jump to next row 
-                line_row = initial_line + i #values start in the row 4 of the sheet
-                line_cell = column['line'][j] + str(line_row) #update cell reference, from left to right 
-                if line_table.iloc[i,j] == None:
-                    line_value = '---'
-                else:
-                    line_value = line_table.iloc[i,j] 
-                wb["Lines"][line_cell] = line_value # update cell value
+    if number['line'] > 0:     
+        # checking values of the parameters, and adding columns and/or formatting them  
+        net = check_line(net, time_steps, parameters, number)                                  
+        # read the values from results, and sort them for the output
+        line_table = sort_line_results(net, number, time_steps,results['line'], column, parameters)
+        # write the values in excel table
+        cell['line'] = write_in_the_excel(line_table, wb['Lines'], 'line', column, initial_line)
+        # delete the results and table to free memory
         del results['line']
         del line_table
+        
      # %% Trafos' sheet     
-    if number['trafos'] > 0:
-        for i in range(len(parameters['net_trafo'])):
-             if not parameters['net_trafo'][i] in net.trafo.keys():
-                 net.trafo[parameters['net_trafo'][i]] = [None]*number['trafos']
-        if time_steps == 1:
-            for i in range(len(parameters['res_trafo'])):
-                 if not parameters['res_trafo'][i] in net.res_trafo.keys():
-                     net.res_trafo[parameters['res_trafo'][i]] = [None]*number['trafos']        
-                     
-        trafo_columns = ['step','zone','trafo_index','name','std_type','hv_bus','lv_bus','vn_hv_kv','vn_lv_kv','pfe_kw',
-                         'shift_degree','tap_pos','parallel','in_service','p_hv_mw','q_hv_mvar','p_lv_mw','q_lv_mvar',
-                         'pl_mw','ql_mvar','loading_percent']
-        tr_table = {}
-        for column_t in trafo_columns:
-            tr_table[column_t] = [0]*number['trafos']
-        trafo_table = pd.DataFrame(data = tr_table)         
-        trafo_table = sort_trafo_results(net, number, trafo_table, time_steps,results['trafo'])              
-        print('Now writing into the excel file')
-        for i in tqdm(range(trafo_table.shape[0])): # going to all the values in the same line/row = 
-            for j in range(trafo_table.shape[1]): # jump to next row               
-                trafo_row = initial_line + i #values start in the row 4 of the sheet
-                trafo_cell = column['trafo'][j] + str(trafo_row) #update cell reference, from left to right                 
-                if trafo_table.iloc[i,j] == None:
-                    trafo_value = '---'
-                else:
-                    trafo_value = trafo_table.iloc[i,j]          
-                wb["Trafos"] [trafo_cell] = trafo_value # update cell value
+    if number['trafo'] > 0:
+        # checking values of the parameters, and adding columns and/or formatting them  
+        net = check_trafo(net, time_steps, parameters, number) 
+        # read the values from results, and sort them for the output
+        trafo_table = sort_trafo_results(net, number, time_steps,results['trafo'], column, parameters)   
+        # write the values in excel table   
+        cell['trafo'] = write_in_the_excel(trafo_table, wb['Trafos'], 'trafo', column, initial_line)
+        # delete the results and table to free memory        
         del results['trafo']
         del trafo_table
      # %% Buses Sheet    
-    if number['buses'] > 0:
-        for i in range(len(parameters['net_bus'])):
-             if not parameters['net_bus'][i] in net.bus.keys():
-                 net.bus[parameters['net_bus'][i]] = [None]*number['buses']
-        if time_steps ==1:
-            for i in range(len(parameters['res_bus'])):
-                if not parameters['res_bus'][i] in net.res_bus.keys():
-                    net.res_bus[parameters['res_bus'][i]] = [None]*number['buses']   
-                    
-        bus_columns = ['step','index','zone','name','vn_kv','in_service','vm_pu','va_degree','p_mw','q_mvar']
-        bu_table = {}
-        for column_t in bus_columns:
-            bu_table[column_t] = [0]*number['buses']
-        bus_table = pd.DataFrame(data = bu_table )      
-        bus_table = sort_bus_results(net, number, bus_table, time_steps,results['bus'])
-        print('Now writing into the excel file')
-        for i in tqdm(range(bus_table.shape[0])): # going to all the values in the same line/row = 
-            for j in range(bus_table.shape[1]): # jump to next row          
-                bus_row = initial_line + i #values start in the row 4 of the sheet
-                bus_cell = column['bus'][j] + str(bus_row) #update cell reference, from left to right 
-                if bus_table.iloc[i,j] == None:
-                    bus_value = '---'
-                else:
-                    bus_value = bus_table.iloc[i,j]           
-                wb["Buses"][bus_cell] = bus_value # update cell value
+    if number['bus'] > 0:
+        # checking values of the parameters, and adding columns and/or formatting them  
+        net = check_bus(net, time_steps, parameters, number)  
+        # read the values from results, and sort them for the output
+        bus_table = sort_bus_results(net, number, time_steps, results['bus'], column, parameters)
+        # write the values in excel table
+        cell['bus'] = write_in_the_excel(bus_table, wb['Buses'], 'bus', column, initial_line)
+        # delete the results and table to free memory
         del results['bus']
         del bus_table
     # %% Summary Sheet
@@ -420,17 +320,17 @@ def create_excel(network_name, scenario_name, net, results, gen_fuel_tech, numbe
     
     
     # %% Update Table reference, and here the cell is the last cell added i.e. bottom-right corner of each table  
-    print('\n Updating tables references in excel...')
-    if number['loads'] > 0:
-        wb["Demand"].tables["demand_table"].ref = initial_cell + ':' + load_cell
-    if number['generators'] > 0:  
-        wb['Generation'].tables["generation_table"].ref = initial_cell + ':' + gen_cell
-    if number['trafos'] > 0:
-        wb["Trafos"].tables["trafos_table"].ref = initial_cell + ':' + trafo_cell
-    if number['lines'] > 0:
-        wb["Lines"].tables["lines_table"].ref = initial_cell + ':' + line_cell
-    if number['buses'] > 0:
-        wb["Buses"].tables["bus_table"].ref = initial_cell + ':' + bus_cell 
+    print('\n\n Updating tables references in excel...')
+    if number['load'] > 0:
+        wb["Demand"].tables["demand_table"].ref = initial_cell + ':' + cell['load']
+    if number['gen'] > 0:  
+        wb['Generation'].tables["generation_table"].ref = initial_cell + ':' + cell['gen']
+    if number['trafo'] > 0:
+        wb["Trafos"].tables["trafos_table"].ref = initial_cell + ':' + cell['trafo']
+    if number['line'] > 0:
+        wb["Lines"].tables["lines_table"].ref = initial_cell + ':' + cell['line']
+    if number['bus'] > 0:
+        wb["Buses"].tables["bus_table"].ref = initial_cell + ':' + cell['bus']
     
     # %% save with the topology and scenarios names
     print('\n Closing workbook ...')
@@ -478,7 +378,9 @@ Running powerflow and create_exccel in case of ''1'' iteration
 def run_one_iteration(network_name, scenario_name, gen_fuel_tech, output_path, net, time_steps = 1):
     
     [number, column, parameters] = output_parameters(net)
-    results = []
+    results = {}
+    for element in number:
+        results[element] = []    
     pp.runpp(net)
     create_excel(network_name, scenario_name, net, results, gen_fuel_tech, number, column, parameters, output_path, time_steps)
     

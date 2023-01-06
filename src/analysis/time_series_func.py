@@ -13,7 +13,7 @@ import tempfile
 from pandapower.timeseries import OutputWriter #To write the outputs to HDD
 from pandapower.timeseries.run_time_series import run_timeseries #main time series function, calls the controller function to update P,Q value and run pp
 
-from src.analysis.excel_output import output_parameters
+from src.analysis.parameters import output_parameters
 from src.analysis.excel_output import create_excel
 #%%
 '''
