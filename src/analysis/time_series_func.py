@@ -64,7 +64,7 @@ def run_time_series(network_name, scenario_name, gen_fuel_tech, output_path, net
     print("Result can be found in your locan temp folder : {}".format(output_dir))
     
     #. number of columns, column lettere and name of the parameters to extracted from the results
-    [number, column, parameters] = output_parameters(net) 
+    [number, column, parameters] = output_parameters(net, gen_fuel_tech) 
     
     #. the output writer with the desired result to be stored in the temporary files   
     create_output_writer(net, time_steps, output_dir = output_dir, parameters = parameters)  
@@ -76,7 +76,7 @@ def run_time_series(network_name, scenario_name, gen_fuel_tech, output_path, net
     results = temp_files_to_excel_input(output_dir, parameters)
    
     #. Call the exxcel template, fill up with the results, and save the results in a new excel spreadsheet
-    create_excel(network_name, scenario_name, net, results, gen_fuel_tech, number, column, parameters, output_path, time_steps)
+    create_excel(network_name, scenario_name, net, results, number, column, parameters, output_path, time_steps)
 
 #%%   
     return
