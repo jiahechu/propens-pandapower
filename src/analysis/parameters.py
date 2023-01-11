@@ -22,7 +22,7 @@ def output_parameters(net, gen_fuel_tech):#, Sum_Bus_Vol_Under_Data):
         if element in generation: net[element]['type'] = element # add the type of generation
     #'summary' : len(Sum_Bus_Vol_Under_Data) }
     
-    net = add_fuel(gen_fuel_tech) # add fuel to the generators
+    net = add_fuel(net, gen_fuel_tech) # add fuel to the generators
     
     # according to the desired excel output, the corresponding columns are assigning to each element
     column = {'letter' : {},
