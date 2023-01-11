@@ -17,7 +17,7 @@ input_setup = {     # (scenario path, name of used pre-defined scenario, ggf. pr
 output_setup = {
     'output_path': './result',
     # the excel output will have topology and scenario name e.g. Results_Network01_Scenario01.xlsm
-    'topology_name' : 'Network01', 
+    'topology_name' : 'Network',
     'scenario_name' : 'Scenario01'
     }
 
