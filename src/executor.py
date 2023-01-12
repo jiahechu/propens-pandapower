@@ -4,8 +4,8 @@ Execute the toolbox.
 from src.frontend.read_input import read_input
 from src.frontend.generate_timeseries import generate_timeseries
 from src.scenarios.apply_scenario import apply_scenario
-from src.analysis.time_series_func import run_time_series
-from src.analysis.run_pf import run_one_iteration
+from src.analysis.solver import solve
+from src.analysis.excel_output import create_excel
 
 # %%
 def executor(input_setup, output_setup):
@@ -40,13 +40,12 @@ def executor(input_setup, output_setup):
         network_name = output_setup['topology_name']
         scenario_name = output_setup['scenario_name']
         output_path = output_setup['output_path']
- #%%       
-        gen_fuel_tech = [] # ------------------------------- to be readed --------------------------------
-        if time_steps > 1:    
-            run_time_series(network_name, scenario_name, gen_fuel_tech, output_path, net, time_steps)
-        else:
-            run_one_iteration(network_name, scenario_name, gen_fuel_tech, output_path, net, time_steps)
-        
-            
+ #%%    #Solve the network depeding of it is a time_series or one iteration analysis 
+        # if times_step is 1, everything is saved in net.res_, thus 'results' is empty
+        results, net = solve(network_name, scenario_name, gen_fuel_tech, output_path, net, time_steps)   
+        #Call the exxcel template, fill up with the results, and save the results in a new excel spreadsheet
+        # if times_step is 1, everything is saved in net.res_, thus 'tables' is empty
+        tables = create_excel(network_name, scenario_name, gen_fuel_tech, output_path, net, time_steps, results)  
+              
     #%% 
     return 0

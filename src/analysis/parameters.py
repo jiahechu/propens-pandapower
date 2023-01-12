@@ -9,7 +9,7 @@ Created on Thu Jan  5 22:17:16 2023
 import pandas as pd
 import pandapower as pp
 
-def output_parameters(net, gen_fuel_tech):#, Sum_Bus_Vol_Under_Data):
+def output_parameters(net, gen_fuel_tech, scenario_name):#, Sum_Bus_Vol_Under_Data):
        
     # Preallocate values: number of loads/gen/buses/trafos/lines, and columns in the excel template and their names
     # based on the network topology, the quentity of elements are counted
@@ -19,6 +19,7 @@ def output_parameters(net, gen_fuel_tech):#, Sum_Bus_Vol_Under_Data):
     
     for element in elements:  
         number[element] = len(net[element]) # count the number in each type of element
+        net[element]['scenario'] = scenario_name # add the scenario name to the net that is being calculated now 
         if element in generation: net[element]['type'] = element # add the type of generation
     #'summary' : len(Sum_Bus_Vol_Under_Data) }
     
@@ -27,21 +28,20 @@ def output_parameters(net, gen_fuel_tech):#, Sum_Bus_Vol_Under_Data):
     # according to the desired excel output, the corresponding columns are assigning to each element
     column = {'letter' : {},
               'parameter' : {} }
-    column['letter'] = { 'load' : ['C','D','E','F','G','H','I'],
-                        'gen' : ['C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R'],
-                        'sgen' : ['C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R'],
-                        'line' : ['C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U'],
-                        'trafo' : ['C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W'],
-                        'bus' : ['C','D','E','F','G','H','I','J','K','L'],
-                        'summary' : ['C', 'D' ,'E', 'F', 'G'] }
+    column['letter'] = { 'load' : ['C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'],
+                        'gen' : ['C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'],
+                        'sgen' : ['C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'],
+                        'line' : ['C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'],
+                        'trafo' : ['C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'],
+                        'bus' : ['C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']}
     
     
     #  according to the desired excel output, the corresponding output_parameters by element are selected
-    parameters = {'net_bus' : ['zone','name','vn_kv','in_service'],
-                  'net_load' : ['zone','bus','in_service'],
-                  'net_gen' : ['type','zone','bus','name','in_service','fuel','vm_pu', 'max_p_mw', 'max_q_mvar','min_p_mw','min_q_mvar'],
-                  'net_line' : ['zone','name','from_bus','to_bus', 'in_service','length_km', 'max_i_ka','max_loading_percent', 'parallel', 'std_type'],
-                  'net_trafo' : ['zone','name', 'std_type', 'hv_bus', 'lv_bus', 'vn_hv_kv', 'vn_lv_kv', 'pfe_kw', 'shift_degree','tap_pos', 'parallel', 'in_service' ],
+    parameters = {'net_bus' : ['scenario','zone','name','vn_kv','in_service'],
+                  'net_load' : ['scenario','zone','name','bus','in_service'],
+                  'net_gen' : ['scenario','zone','name','type','bus','in_service','fuel','vm_pu', 'max_p_mw', 'max_q_mvar','min_p_mw','min_q_mvar'],
+                  'net_line' : ['scenario','zone','name','from_bus','to_bus', 'in_service','length_km', 'max_i_ka','max_loading_percent', 'parallel', 'std_type'],
+                  'net_trafo' : ['scenario','zone','name', 'std_type', 'hv_bus', 'lv_bus', 'vn_hv_kv', 'vn_lv_kv', 'pfe_kw', 'shift_degree','tap_pos', 'parallel', 'in_service' ],
                   
                   'res_bus' : ['vm_pu','va_degree','p_mw','q_mvar'],           
                   'res_load' : ['p_mw','q_mvar'],
@@ -49,6 +49,7 @@ def output_parameters(net, gen_fuel_tech):#, Sum_Bus_Vol_Under_Data):
                   'res_line' : ['p_from_mw', 'q_from_mvar', 'p_to_mw', 'q_to_mvar', 'pl_mw', 'ql_mvar', 'loading_percent'],
                   'res_trafo' : ['p_hv_mw','q_hv_mvar', 'p_lv_mw', 'q_lv_mvar', 'pl_mw', 'ql_mvar', 'loading_percent'],
                   'summary' : ['component','Percentage','Extra Info'] }
+    
     #parameters that just include the same of other already written, 
     #but might not have all of them, in that case '---' will be written
     parameters['net_sgen'] = parameters['net_gen'] 
