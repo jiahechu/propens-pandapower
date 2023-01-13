@@ -43,12 +43,11 @@ def executor(input_setup, output_setup):
         output_path = output_setup['output_path']
 
         gen_fuel_tech = []  # to be read
-        if time_steps > 1:
-            print('Calculate time series')
-            run_time_series(network_name, scenario_name, gen_fuel_tech, output_path, net, time_steps)
-        else:
-            print('Calculate only one time step')
-            run_one_iteration(network_name, scenario_name, gen_fuel_tech, output_path, net, time_steps)
+        # if times_step is 1, everything is saved in net.res_, thus 'results' is empty
+        results, net = solve(network_name, scenario_name, gen_fuel_tech, output_path, net, time_steps)
+        # Call the excel template, fill up with the results, and save the results in a new excel spreadsheet
+        # if times_step is 1, everything is saved in net.res_, thus 'tables' is empty
+        tables = create_excel(network_name, scenario_name, gen_fuel_tech, output_path, net, time_steps, results)
 
         # optimal power flow
         if general['use_opf'][0]:
