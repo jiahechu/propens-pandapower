@@ -11,4 +11,3 @@ dependencies:
     - pandapower
     - openpyxl
     - numba
-    - PyQt5
