@@ -8,7 +8,7 @@ from src.frontend.read_input import read_input
 
 
 class TestReadInput(unittest.TestCase):
-    net, ts_setup = read_input('./pv_storage.xlsx', './topology.xlsx')
+    net, general, fuel = read_input('./pv_storage.xlsx', './topology.xlsx')
 
     def test_buses(self):
         buses = self.net.bus
@@ -50,11 +50,21 @@ class TestReadInput(unittest.TestCase):
         self.assertEqual(trafo['lv_bus'].values.tolist(), [1])
         self.assertEqual(trafo['std_type'].values.tolist(), ['0.1 MVA 10/0.4 kV'])
 
-    def test_ts_setup(self):
-        use_ts = self.ts_setup['use_ts']
-        ts_path = self.ts_setup['ts_path']
+    def test_general(self):
+        use_ts = self.general['use_ts']
+        ts_path = self.general['ts_path']
+        use_opf = self.general['use_opf']
         self.assertEqual(use_ts.values.tolist(), [True])
         self.assertEqual(ts_path.values.tolist(), ['./tests/frontend/timeseries.xlsx'])
+        self.assertEqual(use_opf.values.tolist(), [False])
+
+    def test_fuel(self):
+        gen_type = self.fuel['gen_type']
+        index = self.fuel['index']
+        fuel = self.fuel['fuel']
+        self.assertEqual(gen_type.values.tolist(), ['sgen'] * 8)
+        self.assertEqual(index.values.tolist(), [0, 1, 2, 3, 4, 5, 6, 7])
+        self.assertEqual(fuel.values.tolist(), ['solar'] * 8)
 
 
 if __name__ == '__main__':
