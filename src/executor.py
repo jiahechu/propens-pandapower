@@ -7,6 +7,7 @@ from src.scenarios.apply_scenario import apply_scenario
 from src.analysis.time_series_func import run_time_series
 from src.analysis.run_pf import run_one_iteration
 
+
 # %%
 def executor(input_setup, output_setup):
     # %%
@@ -21,7 +22,7 @@ def executor(input_setup, output_setup):
         None
     """
     # simulate for each scenario
-    for scenario_path, pd_scenario, pd_para in input_setup['scenario_setup']:
+    for scenario_name, scenario_path, pd_scenario, pd_para in input_setup['scenario_setup']:
         # create pandapower network from Excel
         net, ts_setup, gen_fuel_tech = read_input(scenario_path, input_setup['topology_path'])
         time_steps = 1
@@ -37,8 +38,7 @@ def executor(input_setup, output_setup):
         print(net)
         # TODO: analysis once for all scenarios or once for one?
         # parameters to define the output file name, and its path
-        network_name = output_setup['topology_name']
-        scenario_name = output_setup['scenario_name']
+        network_name = input_setup['topology_name']
         output_path = output_setup['output_path']
  #%%       
         gen_fuel_tech = [] # ------------------------------- to be readed --------------------------------
