@@ -5,7 +5,7 @@ Only test bus, line, switch, generation, trafo and load.
 
 import unittest
 import pandapower.networks as pn
-from generate_timeseries import generate_timeseries
+from src.frontend.generate_timeseries import generate_timeseries
 
 
 class TestGenerateTS(unittest.TestCase):
