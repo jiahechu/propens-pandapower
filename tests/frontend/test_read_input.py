@@ -13,8 +13,8 @@ class TestReadInput(unittest.TestCase):
     def test_buses(self):
         buses = self.net.bus
         self.assertEqual(buses['name'].values.tolist(), ['Trafostation_OS', 'main_busbar', 'bus_1_1', 'bus_1_2',
-                                                             'bus_1_3', 'bus_1_4', 'bus_1_5', 'bus_1_6', 'bus_2_1',
-                                                             'bus_2_2'])
+                                                         'bus_1_3', 'bus_1_4', 'bus_1_5', 'bus_1_6', 'bus_2_1',
+                                                         'bus_2_2'])
         self.assertEqual(buses['vn_kv'].values.tolist(), [10, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4])
 
     def test_lines(self):
