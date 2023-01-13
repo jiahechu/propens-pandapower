@@ -21,35 +21,78 @@ def executor(input_setup, output_setup):
     """
     # simulate for each scenario
     for scenario_name, scenario_path, pd_scenario, pd_para in input_setup['scenario_setup']:
+        print('\nStart simulation with scenario ' + scenario_name)
+
         """Frontend"""
         # create pandapower network from Excel
-        net, general, gen_fuel_tech = read_input(scenario_path, input_setup['topology_path'])
-        time_steps = 1
+        try:
+            print('\nReading input excel files')
+            net, general, gen_fuel_tech = read_input(scenario_path, input_setup['topology_path'])
+            time_steps = 1
+            print('> Done')
+        except:
+            print('\nError while reading excel files, please check input file again!')
+            print('Program stops.')
+            print('Detail error arguments: ')
+            raise
 
         # apply scenario from data
         if pd_scenario != '':
-            net = apply_scenario(net, pd_scenario, pd_para)
+            try:
+                print('\nApplying pre-defined scenarios')
+                net = apply_scenario(net, pd_scenario, pd_para)
+                print('> Done')
+            except:
+                print('\nError while applying pre-defined scenarios, please check input parameters again!')
+                print('Program stops.')
+                print('Detail error arguments: ')
+                raise
 
         # apply time series
         if general['use_ts'][0]:
-            net, time_steps = generate_timeseries(net, general['ts_path'][0])
+            try:
+                print('\nGenerating controllers for time series analysis')
+                net, time_steps = generate_timeseries(net, general['ts_path'][0])
+                print('> Done')
+            except:
+                print('\nError while generating controllers for time series analysis, please check time series data again!')
+                print('Program stops.')
+                print('Detail error arguments: ')
+                raise
 
-        print('Successfully read pandapower network from Excel:')
+        print('\nSuccessfully read pandapower network from Excel:')
         print(net)
 
         """Analysis"""
         # parameters to define the output file name, and its path
-        network_name = input_setup['topology_name']
-        output_path = output_setup['output_path']
-
         gen_fuel_tech = []  # to be read
         # if times_step is 1, everything is saved in net.res_, thus 'results' is empty
-        results, net = solve(network_name, scenario_name, gen_fuel_tech, output_path, net, time_steps)
+        try:
+            results, net = solve(input_setup['topology_name'], scenario_name, gen_fuel_tech, output_setup['output_path'],
+                                 net, time_steps)
+        except:
+            print('\nError while solving network, e.g. not converging')
+            print('Program stops.')
+            print('Detail error arguments: ')
+            raise
         # Call the excel template, fill up with the results, and save the results in a new excel spreadsheet
         # if times_step is 1, everything is saved in net.res_, thus 'tables' is empty
-        tables = create_excel(network_name, scenario_name, gen_fuel_tech, output_path, net, time_steps, results)
+        try:
+            tables = create_excel(input_setup['topology_name'], scenario_name, gen_fuel_tech, output_setup['output_path'],
+                                  net, time_steps, results)
+        except:
+            print('\nError while creating output excel file')
+            print('Program stops.')
+            print('Detail error arguments: ')
+            raise
 
         # optimal power flow
         if general['use_opf'][0]:
-            print('Calculate optimal power flow')
-            pass  # do opf analysis
+            try:
+                print('\nCalculating optimal power flow')
+                pass  # do opf analysis
+            except:
+                print('\nError while doing optimal power flow')
+                print('Program stops.')
+                print('Detail error arguments: ')
+                raise
