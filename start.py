@@ -11,7 +11,8 @@ input_setup = {     # (scenario name, scenario path, name of used pre-defined sc
     'topology_name': 'Network',
     'scenario_setup': [('basic', './example/kerber_landnetz_fl2/scenarios/basic.xlsx', 'load', 0.9),
                        ('pv', './example/kerber_landnetz_fl2/scenarios/pv.xlsx', 'pv_gen', 1.5),
-                       ('pv_storage', './example/kerber_landnetz_fl2/scenarios/pv_storage.xlsx', '', 0)]
+                       ('pv_storage', './example/kerber_landnetz_fl2/scenarios/pv_storage.xlsx', '', 0),
+                       ('opf', './example/kerber_landnetz_fl2/scenarios/opf.xlsx', '', 0)]
     }
 
 # summarize all output setups to a dictionary

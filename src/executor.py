@@ -8,9 +8,7 @@ from src.analysis.time_series_func import run_time_series
 from src.analysis.run_pf import run_one_iteration
 
 
-# %%
 def executor(input_setup, output_setup):
-    # %%
     """
     Execute the toolbox.
 
@@ -23,8 +21,9 @@ def executor(input_setup, output_setup):
     """
     # simulate for each scenario
     for scenario_name, scenario_path, pd_scenario, pd_para in input_setup['scenario_setup']:
+        """Frontend"""
         # create pandapower network from Excel
-        net, ts_setup, gen_fuel_tech = read_input(scenario_path, input_setup['topology_path'])
+        net, general, gen_fuel_tech = read_input(scenario_path, input_setup['topology_path'])
         time_steps = 1
 
         # apply scenario from data
@@ -32,21 +31,26 @@ def executor(input_setup, output_setup):
             net = apply_scenario(net, pd_scenario, pd_para)
 
         # apply time series
-        if ts_setup['use_ts'][0]:
-            net, time_steps = generate_timeseries(net, ts_setup['ts_path'][0])
+        if general['use_ts'][0]:
+            net, time_steps = generate_timeseries(net, general['ts_path'][0])
 
+        print('Successfully read pandapower network from Excel:')
         print(net)
-        # TODO: analysis once for all scenarios or once for one?
+
+        """Analysis"""
         # parameters to define the output file name, and its path
         network_name = input_setup['topology_name']
         output_path = output_setup['output_path']
- #%%       
-        gen_fuel_tech = [] # ------------------------------- to be readed --------------------------------
-        if time_steps > 1:    
+
+        gen_fuel_tech = []  # to be read
+        if time_steps > 1:
+            print('Calculate time series')
             run_time_series(network_name, scenario_name, gen_fuel_tech, output_path, net, time_steps)
         else:
+            print('Calculate only one time step')
             run_one_iteration(network_name, scenario_name, gen_fuel_tech, output_path, net, time_steps)
-        
-            
-    #%% 
-    return 0
+
+        # optimal power flow
+        if general['use_opf'][0]:
+            print('Calculate optimal power flow')
+            pass  # do opf analysis

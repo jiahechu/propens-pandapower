@@ -4,7 +4,7 @@ Only test bus, line, switch, generation, trafo and load.
 """
 
 import unittest
-from read_input import read_input
+from src.frontend.read_input import read_input
 
 
 class TestReadInput(unittest.TestCase):
