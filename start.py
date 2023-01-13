@@ -6,19 +6,18 @@ from src import executor
 
 # summarize all input setup in a dictionary
 # available pre-defined scenarios: pv_gen, wind_gen, conventional_pp_gen, load, trafo_cap, line_cap, storage, switch
-input_setup = {     # (scenario path, name of used pre-defined scenario, ggf. pre-defined scenario parameter)
+input_setup = {     # (scenario name, scenario path, name of used pre-defined scenario, pre-defined scenario parameter)
     'topology_path': './example/kerber_landnetz_fl2/topology.xlsx',
-    'scenario_setup': [('./example/kerber_landnetz_fl2/scenarios/basic.xlsx', 'load', 0.9),
-                       ('./example/kerber_landnetz_fl2/scenarios/pv.xlsx', 'pv_gen', 1.5),
-                       ('./example/kerber_landnetz_fl2/scenarios/pv_storage.xlsx', '', 0)]
+    'topology_name': 'Network',
+    'scenario_setup': [('basic', './example/kerber_landnetz_fl2/scenarios/basic.xlsx', 'load', 0.9),
+                       ('pv', './example/kerber_landnetz_fl2/scenarios/pv.xlsx', 'pv_gen', 1.5),
+                       ('pv_storage', './example/kerber_landnetz_fl2/scenarios/pv_storage.xlsx', '', 0)]
     }
 
 # summarize all output setups to a dictionary
 output_setup = {
-    'output_path': './result',
     # the excel output will have topology and scenario name e.g. Results_Network01_Scenario01.xlsm
-    'topology_name' : 'Network',
-    'scenario_name' : 'Scenario01'
+    'output_path': './result'
     }
 
 #%%
