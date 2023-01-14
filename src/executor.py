@@ -6,6 +6,8 @@ from src.frontend.generate_timeseries import generate_timeseries
 from src.scenarios.apply_scenario import apply_scenario
 from src.analysis.solver import solve
 from src.analysis.excel_output import create_excel
+from src.analysis.save import save_results
+from src.analysis.parameters import preallocate_tables
 
 
 def executor(input_setup, output_setup):
@@ -19,6 +21,9 @@ def executor(input_setup, output_setup):
     Returns:
         None
     """
+    # preallocate tables and temporary files dictionary for the different scenarios results
+    tables = preallocate_tables(input_setup)
+    temporary_files = {} 
     # simulate for each scenario
     for scenario_name, scenario_path, pd_scenario, pd_para in input_setup['scenario_setup']:
         print('\nStart simulation with scenario ' + scenario_name)
@@ -65,27 +70,21 @@ def executor(input_setup, output_setup):
 
         """Analysis"""
         # parameters to define the output file name, and its path
-        gen_fuel_tech = []  # to be read
         # if times_step is 1, everything is saved in net.res_, thus 'results' is empty
         try:
-            results, net = solve(input_setup['topology_name'], scenario_name, gen_fuel_tech, output_setup['output_path'],
+            temporary_files[scenario_name], net = solve(input_setup['topology_name'], scenario_name, gen_fuel_tech, output_setup['output_path'],
                                  net, time_steps)
         except:
             print('\nError while solving network, e.g. not converging')
             print('Program stops.')
             print('Detail error arguments: ')
             raise
-        # Call the excel template, fill up with the results, and save the results in a new excel spreadsheet
-        # if times_step is 1, everything is saved in net.res_, thus 'tables' is empty
-        try:
-            tables = create_excel(input_setup['topology_name'], scenario_name, gen_fuel_tech, output_setup['output_path'],
-                                  net, time_steps, results)
+        try:    
+            tables[scenario_name] = save_results(net, gen_fuel_tech, scenario_name, time_steps, temporary_files[scenario_name])    
         except:
-            print('\nError while creating output excel file')
+            print('\nError while saving the results')
             print('Program stops.')
             print('Detail error arguments: ')
-            raise
-
         # optimal power flow
         if general['use_opf'][0]:
             try:
@@ -96,3 +95,12 @@ def executor(input_setup, output_setup):
                 print('Program stops.')
                 print('Detail error arguments: ')
                 raise
+    # Call the excel template, fill up with the results from all scenarios, and save the results in a new excel spreadsheet
+    # if times_step is 1, everything is saved in net.res_, thus 'tables' is empty
+    try:
+        create_excel(input_setup['topology_name'], output_setup['output_path'], tables)
+    except:
+        print('\nError while creating output excel file')
+        print('Program stops.')
+        print('Detail error arguments: ')
+        raise
