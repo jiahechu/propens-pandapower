@@ -60,10 +60,10 @@ def run_time_series(network_name, scenario_name, gen_fuel_tech, output_path, net
  #%%   
     #. creating the temporary file path
     output_dir = os.path.join(tempfile.gettempdir(), "propens_pandapower_time_series")
-    print("Result can be found in your locan temp folder : {}".format(output_dir))
+    # print("Result can be found in your locan temp folder : {}".format(output_dir))
     
     #. number of columns, column lettere and name of the parameters to extracted from the results
-    [number, column, parameters] = output_parameters(net, gen_fuel_tech,scenario_name) 
+    [number, column, parameters] = output_parameters(net, gen_fuel_tech, scenario_name) 
     
     #. the output writer with the desired result to be stored in the temporary files   
     create_output_writer(net, time_steps, output_dir = output_dir, parameters = parameters)  
