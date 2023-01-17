@@ -57,7 +57,7 @@ def temp_files_to_excel_input(output_dir, parameters):
     return results #,results_v02
 #%%
 def run_time_series(network_name, scenario_name, gen_fuel_tech, output_path, net, time_steps):
- #%%   
+ #%% 
     #. creating the temporary file path
     output_dir = os.path.join(tempfile.gettempdir(), "propens_pandapower_time_series")
     # print("Result can be found in your locan temp folder : {}".format(output_dir))

@@ -14,7 +14,7 @@ def sheets_parameters():
     # so the keys() is the the name of the sheets
     elements_by_type = {'Buses' :['bus'],
                         'Demand' : ['load'],
-                        'Generation' : ['gen', 'sgen'],
+                        'Generation' : ['gen', 'sgen','ext_grid'],
                         'Lines' : ['line'],
                         'Trafos' : ['trafo']}
     sheets_names = elements_by_type.keys()
@@ -110,6 +110,13 @@ def add_fuel(net,gen_fuel_tech):
             if not 'fuel' in net[element].keys(): net[element]['fuel'] = 0
             net[element].loc[index,'fuel'] = fuel
             
+    try:
+        fuel = net['ext_grid']['fuel']
+    except:
+        n = len(net['ext_grid'].index)
+        ext_grid = ['External Grid']*n
+        net['ext_grid']['fuel'] = ext_grid 
+        
     return net
 
 def letters():
