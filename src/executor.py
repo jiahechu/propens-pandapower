@@ -71,8 +71,9 @@ def executor(input_setup, output_setup):
         print(net)
 
         """Analysis"""
-        try:# temporary files are the results from the time series analysis, 
-            # in case of one iteration, the results are in net.res_####
+        # temporary files are the results from the time series analysis,
+        # in case of one iteration, the results are in net.res_####
+        try:
             temporary_files[scenario_name], net = solve(input_setup['topology_name'], scenario_name, gen_fuel_tech, 
                                                         output_setup['output_path'], net, time_steps)
         except:
@@ -80,13 +81,17 @@ def executor(input_setup, output_setup):
             print('Program stops.')
             print('Detail error arguments: ')
             raise
-        try:# tables contains the tables that are going to be written into the excel output,
-            # they are saved in a dict according to the calculated scenarios 
+
+        # tables contains the tables that are going to be written into the excel output,
+        # they are saved in a dict according to the calculated scenarios
+        try:
             tables[scenario_name] = save_results(net, gen_fuel_tech, scenario_name, time_steps, temporary_files[scenario_name])    
         except:
             print('\nError while saving the results')
             print('Program stops.')
             print('Detail error arguments: ')
+            raise
+
         # optimal power flow
         if general['use_opf'][0]:
             try:

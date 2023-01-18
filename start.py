@@ -18,9 +18,8 @@ input_setup = {     # (scenario name, scenario path, name of used pre-defined sc
 # summarize all output setups to a dictionary
 output_setup = {
     # the excel output will have topology and scenario name e.g. Results_Network01_Scenario01.xlsm
-    'output_path': './result'
+    'output_path': './result/'
     }
 
-#%%
 # execute the toolbox
 executor.executor(input_setup, output_setup)
