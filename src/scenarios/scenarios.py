@@ -132,13 +132,3 @@ def scenario_storage(net, para):
     # else
     #     net.storage['max_e_mwh'][:] *= para
     return net
-
-
-def scenario_switch(net, zone):
-    # if para == 0:
-    #     net.switch['closed'][:] = False
-    # elif para == 1:
-    #     net.switch['closed'][:] = True
-    # else:
-    #     raise ValueError('The parameter for pre-defined switch scenario should be 0 or 1')
-    return net
