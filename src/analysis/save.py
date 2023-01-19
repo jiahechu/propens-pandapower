@@ -17,7 +17,7 @@ def save_results(net, gen_fuel_tech, scenario_name, time_steps, results):
             # checking values of the parameters, and adding columns and/or formatting them    
             net = check_parameter(net, time_steps, parameters, number, element) 
             # read the values from results, and sort them for the output
-            tables[element] = sort_results(net, number, time_steps, results[element], column, parameters, element) 
+            tables[element] = sort_results(net, number, time_steps, results[element], column, parameters, element, scenario_name) 
             # delete the results to free memory
             del results[element]
         else:

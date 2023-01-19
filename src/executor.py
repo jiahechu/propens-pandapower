@@ -75,13 +75,12 @@ def executor(input_setup, output_setup):
         # in case of one iteration, the results are in net.res_####
         try:
             temporary_files[scenario_name], net = solve(input_setup['topology_name'], scenario_name, gen_fuel_tech, 
-                                                        output_setup['output_path'], net, time_steps)
+                                                        output_setup['output_path'], net, time_steps, general)
         except:
             print('\nError while solving network, e.g. not converging')
             print('Program stops.')
             print('Detail error arguments: ')
             raise
-
         # tables contains the tables that are going to be written into the excel output,
         # they are saved in a dict according to the calculated scenarios
         try:
@@ -91,17 +90,6 @@ def executor(input_setup, output_setup):
             print('Program stops.')
             print('Detail error arguments: ')
             raise
-
-        # optimal power flow
-        if general['use_opf'][0]:
-            try:
-                print('\nCalculating optimal power flow')
-                pass  # do opf analysis
-            except:
-                print('\nError while doing optimal power flow')
-                print('Program stops.')
-                print('Detail error arguments: ')
-                raise
     # Call the excel template, fill up with the results from all scenarios
     try:
         create_excel(input_setup['topology_name'], output_setup['output_path'], tables)
