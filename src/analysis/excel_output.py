@@ -61,15 +61,20 @@ def create_excel(topology_name, output_path, tables) :
                 try:
                     cell[sheet[element]] = write_in_the_excel(tables[scenario][element], wb[sheet[element]], element, cell[sheet[element]])
                 except:
-                    print('Problem writing in the excel')
+                    print('\nProblem writing in the excel')
+                    print('>>>>>> Scenario : '+ scenario)
+                    print('>>>>>> Element : '+ element)
                     raise
-                    
-                # delete the results to free memory
             else:
+                # write zeros in the excel table per sheet, and save the last cell
+                try:
+                    cell[sheet[element]] = write_in_the_excel(tables[scenario][element].iloc[0], wb[sheet[element]], element, cell[sheet[element]])
+                except:
+                    print('\nProblem with empty varbiables while writting the excel')
+                    print('>>>>>> Scenario : '+ scenario)
+                    print('>>>>>> Element : '+ element)
+                    raise
                 print('No '+ element +'s in the net')
-            
-            
-
 
     #% Update Table reference, and here the cell is the last cell added i.e. bottom-right corner of each table  
     print('\n\n Updating tables references in excel...')
@@ -93,9 +98,8 @@ def create_excel(topology_name, output_path, tables) :
     data = data.replace(np.nan, '---')
     #data= data.replace(None, '--')
 
-    
     rows = dataframe_to_rows(df = data)
-    for r_idx, row in tqdm(enumerate(rows, 1)):
+    for r_idx, row in enumerate(rows, 1):
         for c_idx, value in enumerate(row, 1):
              wb['Data'].cell(row=r_idx, column=c_idx, value=value)
              

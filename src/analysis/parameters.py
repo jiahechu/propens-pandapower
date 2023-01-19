@@ -76,7 +76,9 @@ def output_parameters(net, gen_fuel_tech, scenario_name):#, Sum_Bus_Vol_Under_Da
             if len(scenario_name) > 0: pp.add_zones_to_elements(net, replace=True, elements = element) 
             column['parameter'][element] = ['step','index'] + parameters['net_' + element] + parameters['res_' + element]            
 
-    return number, column, parameters
+    return number, column, parameters  
+
+
 
 def preallocate_table(element, column, number):
     # preallocating the columns names with the parameters from load, this is our desired ordered excel output
