@@ -13,15 +13,15 @@ from src.analysis.parameters import preallocate_table
 #%%
 def sort_results(net, number, time_steps, element_results, column, parameters, element, scenario_name): 
 
-    print(' > of the '+ element+'s')
 
     # extract the values from the netowrk topology and power flow results
     table = preallocate_table(element, column, number)
-    i = 0
+    
     if net[element].shape[0] == 0:
         table['scenario'][0] = scenario_name
+        if 'type' in table.keys():  table['type'][0] = element
         return table
-    
+    i = 0
     for index in net[element].index:
         # from time step, here only the first iteration is done, so '0'
         table.loc[i,'step'] = 0

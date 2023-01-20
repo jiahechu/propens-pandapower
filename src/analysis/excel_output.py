@@ -21,7 +21,7 @@ def write_in_the_excel(table, sheet, element, cell):
     #     sheet[cell] = column_title
     #     j = j + 1
     #values start in the 'initial line' (row 5 of the excel sheet), then depends of the number of scenarios
-    initial_line = int(cell[1:])  
+    initial_line = int(cell[1:]) + 1  
     for i in tqdm(range(table.shape[0])): # going through all the rows
         row = initial_line + i #update cell reference
         for j in range(table.shape[1]): # going though all the columns                        
@@ -56,25 +56,15 @@ def create_excel(topology_name, output_path, tables) :
         for element in tables[scenario]:
             print(' > Element: ' + element)
             # print(tables[scenario][element])
-            if len(tables[scenario][element]) > 0:  # e.g. if there is no load, jump to the next element            
-                # write the values in excel table per sheet, and save the last cell
-                try:
-                    cell[sheet[element]] = write_in_the_excel(tables[scenario][element], wb[sheet[element]], element, cell[sheet[element]])
-                except:
-                    print('\nProblem writing in the excel')
-                    print('>>>>>> Scenario : '+ scenario)
-                    print('>>>>>> Element : '+ element)
-                    raise
-            else:
-                # write zeros in the excel table per sheet, and save the last cell
-                try:
-                    cell[sheet[element]] = write_in_the_excel(tables[scenario][element].iloc[0], wb[sheet[element]], element, cell[sheet[element]])
-                except:
-                    print('\nProblem with empty varbiables while writting the excel')
-                    print('>>>>>> Scenario : '+ scenario)
-                    print('>>>>>> Element : '+ element)
-                    raise
-                print('No '+ element +'s in the net')
+            # write the values in excel table per sheet, and save the last cell
+            try:
+                cell[sheet[element]] = write_in_the_excel(tables[scenario][element], wb[sheet[element]], element, cell[sheet[element]])
+            except:
+                print('\nProblem writing in the excel')
+                print('>>>>>> Scenario : '+ scenario)
+                print('>>>>>> Element : '+ element)
+                raise
+
 
     #% Update Table reference, and here the cell is the last cell added i.e. bottom-right corner of each table  
     print('\n\n Updating tables references in excel...')
@@ -82,8 +72,8 @@ def create_excel(topology_name, output_path, tables) :
     # they are written in the same sheet, e.g. generation includes gen & sgen 
     sheets_names = elements_by_type
     for sheet_ in sheets_names:
-            if not cell[sheet_] == cell['initial_values']:
-                wb[sheet_].tables[sheet_].ref = cell['initial_titles'] + ':' + cell[sheet_]
+            if not cell[sheet_] == cell['initial']:
+                wb[sheet_].tables[sheet_].ref = cell['initial'] + ':' + cell[sheet_]
             
     #%% data sheet
     data = pd.DataFrame()
