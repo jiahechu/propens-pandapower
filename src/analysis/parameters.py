@@ -20,10 +20,9 @@ def sheets_parameters():
     sheets_names = elements_by_type.keys()
     cell = {} # dictionary with the different cell values for excel
     sheet = {} # dict that returns the sheet of each element
-    cell['initial_titles'] = 'C4' # cell in the template were all the titles start
-    cell['initial_values'] = 'C5' # cell in the template were all the values start
+    cell['initial'] = 'C4' # cell in the template were all the titles start
     for sheet_ in sheets_names:
-        cell[sheet_] = cell['initial_values']
+        cell[sheet_] = cell['initial']
         for element in elements_by_type[sheet_]:
             sheet[element] = sheet_ 
             
@@ -72,9 +71,9 @@ def output_parameters(net, gen_fuel_tech, scenario_name):#, Sum_Bus_Vol_Under_Da
                 parameters['net_'+element] = parameters['net_'+elements_by_type[element_type][0]] 
                 parameters['res_'+element] = parameters['res_'+elements_by_type[element_type][0]]
     for element in number:
-        if number[element] > 0:
-            if len(scenario_name) > 0: pp.add_zones_to_elements(net, replace=True, elements = element) 
-            column['parameter'][element] = ['step','index'] + parameters['net_' + element] + parameters['res_' + element]            
+        # if number[element] > 0:
+        if len(scenario_name) > 0: pp.add_zones_to_elements(net, replace=True, elements = element) 
+        column['parameter'][element] = ['step','index'] + parameters['net_' + element] + parameters['res_' + element]            
 
     return number, column, parameters  
 
@@ -84,7 +83,10 @@ def preallocate_table(element, column, number):
     # preallocating the columns names with the parameters from load, this is our desired ordered excel output
     table = {} 
     for column_t in column['parameter'][element]:
-        table[column_t] = [0]*number[element]
+        # print(column_t)
+        n = number[element]
+        if n == 0: n=1
+        table[column_t] = [0]*n
         
     table_df = pd.DataFrame(data = table) 
 

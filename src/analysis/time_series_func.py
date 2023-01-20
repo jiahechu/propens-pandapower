@@ -64,16 +64,18 @@ def run_time_series(network_name, scenario_name, gen_fuel_tech, output_path, net
     
     #. number of columns, column lettere and name of the parameters to extracted from the results
     [number, column, parameters] = output_parameters(net, gen_fuel_tech, scenario_name) 
-    
-    #. the output writer with the desired result to be stored in the temporary files   
-    create_output_writer(net, time_steps, output_dir = output_dir, parameters = parameters)  
-
+    #. the output writer with the desired result to be stored in the temporary files 
+    print('\n Selecting the output variables')  
+    create_output_writer(net, time_steps, output_dir = output_dir, parameters = parameters)
+    print('> Done')
     #. the main time series function
+    print('\n Running time series')
     run_timeseries(net)
-  
+    print('> Done')
     #. extract the results from the temporary file
+    print('\n Reading the results from the temporary files')
     results = temp_files_to_excel_input(output_dir, parameters)
-
+    print('> Done')
 #%%   
     return results, net
 #%%
