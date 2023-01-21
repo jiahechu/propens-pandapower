@@ -8,7 +8,7 @@ from src.analysis.solver import solve
 from src.analysis.excel_output import create_excel
 from src.analysis.save import save_results
 from src.analysis.parameters import preallocate_tables
-
+from datetime import datetime
 
 def executor(input_setup, output_setup):
     """
@@ -22,7 +22,8 @@ def executor(input_setup, output_setup):
         temporary files: dictionary that contains the temporary files for time series 
         tables: dictionary of dataframes, which are the tables to be written in the excel output
     """
-    # preallocate tables and temporary files dictionary for the different scenarios results
+    time_start = datetime.now()
+    print('\n Running: read_conventional_generation')    # preallocate tables and temporary files dictionary for the different scenarios results
     tables = preallocate_tables(input_setup)
     temporary_files = {} 
     
@@ -98,3 +99,8 @@ def executor(input_setup, output_setup):
         print('Program stops.')
         print('Detail error arguments: ')
         raise
+    time_end = datetime.now()
+    td = (time_end - time_start).total_seconds()
+    print('\n ------  The total time to calculate all scenarios was ' + str(td) + ' seconds ------')
+    
+    return 

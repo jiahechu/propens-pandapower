@@ -5,6 +5,7 @@ Created on Tue Nov 15 21:40:43 2022
 @author: marti
 """
 from openpyxl import load_workbook
+from  openpyxl import utils
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
@@ -65,16 +66,6 @@ def create_excel(topology_name, output_path, tables) :
                 print('>>>>>> Element : '+ element)
                 raise
 
-
-    #% Update Table reference, and here the cell is the last cell added i.e. bottom-right corner of each table  
-    print('\n\n Updating tables references in excel...')
-    # the order of the element in the 'number' dict  is important, as it dictate which table in on top when
-    # they are written in the same sheet, e.g. generation includes gen & sgen 
-    sheets_names = elements_by_type
-    for sheet_ in sheets_names:
-            if not cell[sheet_] == cell['initial']:
-                wb[sheet_].tables[sheet_].ref = cell['initial'] + ':' + cell[sheet_]
-            
     #%% data sheet
     data = pd.DataFrame()
     for scenario in tables.keys():
@@ -92,12 +83,21 @@ def create_excel(topology_name, output_path, tables) :
     for r_idx, row in enumerate(rows, 1):
         for c_idx, value in enumerate(row, 1):
              wb['Data'].cell(row=r_idx, column=c_idx, value=value)
-             
-             
-             
-             
+    letter = utils.cell.get_column_letter(c_idx)
+    end = letter + str(r_idx)
+    wb['Data'].tables['Data'].ref = 'B2' + ':' + end
 
-    #%% save with the topology and scenarios names
+    #% Update Table reference, and here the cell is the last cell added i.e. bottom-right corner of each table  
+    print('\n\n Updating tables references in excel...')
+    # the order of the element in the 'number' dict  is important, as it dictate which table in on top when
+    # they are written in the same sheet, e.g. generation includes gen & sgen 
+    sheets_names = elements_by_type
+    for sheet_ in sheets_names:
+            if not cell[sheet_] == cell['initial']:
+                wb[sheet_].tables[sheet_].ref = cell['initial'] + ':' + cell[sheet_]
+                                 
+
+    #% save with the topology and scenarios names
     print('\n Closing workbook ...')
     file_name =  'results_' + topology_name + '.xlsm'
     
@@ -105,7 +105,7 @@ def create_excel(topology_name, output_path, tables) :
     print('\n Done' )
     print('      > You can check the results with the path: ' + output_path ) 
     print('      > and the results were saved in : ' + file_name)     
-
+    
     return 
 
 #%%
