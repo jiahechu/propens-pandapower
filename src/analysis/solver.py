@@ -27,11 +27,12 @@ def solve(network_name, scenario_name, gen_fuel_tech, output_path, net, time_ste
         results, net = run_one_iteration(network_name, scenario_name, gen_fuel_tech, output_path, net, general)  
     elif general['use_opf'][0] == False:
         results, net = run_time_series(network_name, scenario_name, gen_fuel_tech, output_path, net, time_steps)
+        
     else:
         print('\n ------ Error in General configuration, might be because you are trying OPF with Time Series Analysis, in this version this features can be used at the same time ---------')
         raise
-    print(' > Done')   
     
+    print('\n >>>>>  Solve Network - Done')   
     return results, net
 
             
@@ -46,17 +47,17 @@ def run_one_iteration(network_name, scenario_name, gen_fuel_tech, output_path, n
     
     if general['use_opf'][0] == True:
         if general['use_dc'][0] == True:
-            print('\n Running a Linearized Optimal Power flow ')
+            print('\n Running a Linearized Optimal Power Flow ')
             pp.rundcopp(net)
         else:
-            print('\n Running a Non-linear Optimal Power flow ')
+            print('\n Running a Non-linear Optimal Power Flow ')
             pp.runopp(net)
     else: # run power flow
         if general['use_dc'][0] == True:
-            print('\n Running a Linearized Power flow ')
+            print('\n Running a Linearized Power Flow ')
             pp.rundcpp(net)
         else:
-            print('\n Running a Non-linear Power flow ')
+            print('\n Running a Non-linear Power Flow ')
             pp.runpp(net)
     
     return results,  net
