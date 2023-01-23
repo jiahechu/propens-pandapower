@@ -1,4 +1,5 @@
 # propens-pandapower
+
 **Basic info:** This is a toolbox using pandapower to do network simulations for different scenarios. The toolbox contains a frontend, a database (pre-defined topology and scenarios), and an analysis part.
 
 **Developers:** Jiahe Chu, Karim Kaaniche, Martin Oviedo, Rohith Sureshbabu, Taeyoung Kim (TU Munich)
@@ -9,12 +10,12 @@
 ### Create software environment
 
 1. Download / clone repository to local
-2. Install conda environment using `conda env create -f .propens-env.yaml` 
+2. Install conda environment using `conda env create -f propens-env.yaml` 
 3. Activate conda environment. For PyCharm:
 
        - Open PyCharm
        - Go to 'File->Open'
-       - Navigate to PyCharmProjects and open lemlab
+       - Navigate to PyCharmProjects and open propens
        - When the project has opened, go to 
            `File->Settings->Project->Python Interpreter->Show all->Add->Conda Environment
             ->Existing environment->Select folder->OK`
