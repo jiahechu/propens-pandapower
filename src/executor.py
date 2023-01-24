@@ -10,6 +10,7 @@ from src.analysis.save import save_results
 from src.analysis.parameters import preallocate_tables
 from datetime import datetime
 
+
 def executor(input_setup, output_setup):
     """
     Execute the toolbox.
