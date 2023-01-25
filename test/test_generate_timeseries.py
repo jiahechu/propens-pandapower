@@ -10,7 +10,7 @@ from src.frontend.generate_timeseries import generate_timeseries
 class TestGenerateTS(unittest.TestCase):
     # define a network
     net = pn.case5()
-    ts_path = './timeseries.xlsx'
+    ts_path = './test/timeseries.xlsx'
     net, num_ts = generate_timeseries(net, ts_path)
 
     def test_num_ts(self):

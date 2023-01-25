@@ -10,6 +10,7 @@ from src.analysis.save import save_results
 from src.analysis.parameters import preallocate_tables
 from datetime import datetime
 
+
 def executor(input_setup, output_setup):
     """
     Execute the toolbox.
@@ -82,6 +83,7 @@ def executor(input_setup, output_setup):
             print('Program stops.')
             print('Detail error arguments: ')
             raise
+
         # tables contains the tables that are going to be written into the excel output,
         # they are saved in a dict according to the calculated scenarios
         try:
@@ -91,6 +93,7 @@ def executor(input_setup, output_setup):
             print('Program stops.')
             print('Detail error arguments: ')
             raise
+
     # Call the excel template, fill up with the results from all scenarios
     try:
         create_excel(input_setup['topology_name'], output_setup['output_path'], tables)
