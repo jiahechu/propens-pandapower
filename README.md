@@ -46,7 +46,7 @@
    - storage
    - ward
    - extended ward
-3. If 
+3. If need to do time series analysis or optimal power flow calculation, adjust the setup in `template_scenario.xlsx -general`
 
 
 ### Start the program
