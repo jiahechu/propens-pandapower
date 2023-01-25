@@ -82,7 +82,7 @@ def run_time_series(network_name, scenario_name, gen_fuel_tech, output_path, net
 """
 We create the output writer instead of saving the whole net that takes time.
 We extract only pre defiend outputs
-save the results to "../timeseries/tests/outputs"
+save the results to "../timeseries/test/outputs"
 write the results to ".xls" Excel files. (Possible are: .json, .p, .csv)
 log the variables "p_mw" from "res_load", "vm_pu" from "res_bus" and two res_line values.
 """

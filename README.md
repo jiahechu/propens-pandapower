@@ -34,7 +34,7 @@
    - dc line
    - impedance
    - shunt
-2. Create (multiple) scenarios files using `template_topology.xlsx`, which contains:
+2. Create (multiple) scenarios files using `template_scenario.xlsx`, which contains:
    - motor
    - asymmetric load
    - static generator
@@ -46,6 +46,8 @@
    - storage
    - ward
    - extended ward
+3. If 
+
 
 ### Start the program
 

@@ -8,7 +8,7 @@ from src.frontend.read_input import read_input
 
 
 class TestReadInput(unittest.TestCase):
-    net, general, fuel = read_input('./pv_storage.xlsx', './topology.xlsx')
+    net, general, fuel = read_input('./test/pv_storage.xlsx', './test/topology.xlsx')
 
     def test_buses(self):
         buses = self.net.bus
