@@ -112,10 +112,8 @@ def executor(input_setup, output_setup):
         print('Program stops.')
         print('Detail error arguments: ')
 
-        try:
-        pd_ts_Analysis.call_anal()
-    
-        
+    try:
+        pd_ts_Analysis.call_anal()        
         # if time_steps == 0:
         #     pd_Analysis.call_anal()
             
