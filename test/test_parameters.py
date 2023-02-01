@@ -4,7 +4,7 @@ Test parameters.py.
 import unittest
 import pandapower as pp
 import pandapower.networks as pn
-import parameters as par
+import src.analysis.parameters as par
 
 def test_in(element, elements): 
     flag = element in elements
