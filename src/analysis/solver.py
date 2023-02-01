@@ -59,7 +59,7 @@ def run_one_iteration(network_name, scenario_name, gen_fuel_tech, output_path, n
             print('\n Running a Non-linear Power Flow ')
             pp.runpp(net)
     
-    plot_interactive(output_setup, net)
+    plot_interactive(output_setup, net, network_name, scenario_name)
 
     
     return results,  net

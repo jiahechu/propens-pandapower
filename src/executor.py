@@ -24,10 +24,9 @@ def executor(input_setup, output_setup):
         tables: dictionary of dataframes, which are the tables to be written in the excel output
     """
     time_start = datetime.now()
-    print('\n Running: read_conventional_generation')    # preallocate tables and temporary files dictionary for the different scenarios results
+    # preallocate tables and temporary files dictionary for the different scenarios results
     tables = preallocate_tables(input_setup)
     temporary_files = {} 
-    
     # simulate for each scenario
     for scenario_name, scenario_path, pd_scenario, pd_para in input_setup['scenario_setup']:
         print('\nStart simulation with scenario ' + scenario_name)
