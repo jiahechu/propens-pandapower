@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu Jan 12 11:16:57 2023
 
-@author: marti
 """
 
 import numpy as np
@@ -44,6 +42,18 @@ const_load = control.ConstControl(net, element='load', element_index=net.load.in
 
 network_name = 'pandapower_time_series'
 scenario_name = 'example'
-output_path = './result'
 time_steps = n_ts
 gen_fuel_tech=[]
+
+
+# initialising the outputwriter to save data to excel files in the current folder. You can change this to .json, .csv, or .pickle as well
+ow = timeseries.OutputWriter(net, output_path="./", output_file_type=".xlsx")
+# adding vm_pu of all buses and line_loading in percent of all lines as outputs to be stored
+ow.log_variable('res_bus', 'vm_pu')
+ow.log_variable('res_line', 'loading_percent')
+
+# starting the timeseries simulation for one day -> 96 15 min values.
+timeseries.run_timeseries(net)
+# now checkout the folders res_bus and res_line in your current working dir
+
+
