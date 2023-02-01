@@ -9,6 +9,8 @@ from src.analysis.excel_output import create_excel
 from src.analysis.save import save_results
 from src.analysis.parameters import preallocate_tables
 from src.analysis.plot import plot_topology
+from src.analysis.anal_fun import pd_ts_Analysis
+from src.analysis.anal_fun import pd_Analysis
 from datetime import datetime
 
 def executor(input_setup, output_setup):
@@ -102,12 +104,26 @@ def executor(input_setup, output_setup):
         print('Program stops.')
         print('Detail error arguments: ')
         raise
+
+
     try:
         plot_topology(output_setup, net)
     except:
         print('\nError while plotting the network')
         print('Program stops.')
         print('Detail error arguments: ')
+
+        try:
+        pd_ts_Analysis.call_anal()
+    
+        
+        # if time_steps == 0:
+        #     pd_Analysis.call_anal()
+            
+        # elif time_steps > 0:
+        #     pd_ts_Analysis.call_anal() 
+    except:
+        raise
             
     time_end = datetime.now()
     td = (time_end - time_start).total_seconds()
