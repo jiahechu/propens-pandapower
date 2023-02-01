@@ -53,7 +53,7 @@ class TestTime_series_func(unittest.TestCase):
                   'net_trafo' : ['scenario','zone','name', 'std_type', 'hv_bus', 'lv_bus', 'vn_hv_kv', 'vn_lv_kv', 'pfe_kw', 'shift_degree','tap_pos', 'parallel', 'in_service' ],
                   'res_bus' : ['vm_pu'],           
                   'res_line' : ['loading_percent']} 
-    output_dir = './test_ts_data'  
+    output_dir = './test_data'  
     def test_create_output_writer(self):
         net = create_ts_net()
         # network_name = 'pandapower_time_series'

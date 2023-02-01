@@ -6,7 +6,7 @@ Test solver.py.
 import unittest
 import pandapower as pp
 import pandapower.networks as pn
-import solver
+import src.analysis.solver as solver
 # import parameters as par
 
 def create_opf_net():
@@ -42,22 +42,33 @@ def create_opf_net():
 class TestSolver(unittest.TestCase):   
     # parameters = par.select_parameters()
     # sheet, cell, elements_by_type = par.sheets_parameters()
+    folder_name = 'test_data'
+    output_path = './'+ folder_name
+    
+    output_setup = {
+        # the Excel output will have topology and scenario name e.g. Results_Network01_Scenario01.xlsm
+        'output_path': output_path,
+        # all the scenarios will have the same plotting setings, however, time series scenarios will not be plotted
+        'plot': { 'topology': False, # a plot with the network topology will be created and save as an image (just once)
+                  'interactive network': False, # a interactive map will be open in the default internet browser
+                  'interactive heat map network': False # the interative map will include loading levels
+                }
+        }
+
     
     def test_solve(self):
         network_name = 'test'
         scenario_name = '_solver'
         gen_fuel_tech = []
         
-        folder_name = 'test_data'
-        output_path = './'+ folder_name
-        
         net = pn.case5()
         time_steps = '1'
         general = {}
         general['use_ts'] = [False, False]
         general['use_opf'] = [False, False]
-        general['use_dc'] = [False, False]        
-        results, net = solver.solve(network_name, scenario_name, gen_fuel_tech, output_path, net, time_steps, general)
+        general['use_dc'] = [False, False] 
+        
+        results, net = solver.solve(network_name, scenario_name, gen_fuel_tech, self.output_setup , net, time_steps, general)
         for element in results:
             self.assertEqual(results[element], [])
         
@@ -65,9 +76,6 @@ class TestSolver(unittest.TestCase):
         network_name = 'test_PF'
         scenario_name = 'AC_run_one_iteration'
         gen_fuel_tech = []
-        
-        folder_name = 'test_data'
-        output_path = './'+ folder_name
 
         net = pn.case5()
         # time_steps = '1'
@@ -75,7 +83,7 @@ class TestSolver(unittest.TestCase):
         general['use_ts'] = [False, False]
         general['use_opf'] = [False, False]
         general['use_dc'] = [False, False]
-        results, net = solver.run_one_iteration(network_name, scenario_name, gen_fuel_tech, output_path, net, general)
+        results, net = solver.run_one_iteration(network_name, scenario_name, gen_fuel_tech, self.output_path, net, general, self.output_setup )
         if len(net['res_bus']) > 0: flag = True
         self.assertEqual(flag, True)
         
@@ -84,16 +92,13 @@ class TestSolver(unittest.TestCase):
         scenario_name = 'DC_run_one_iteration'
         gen_fuel_tech = []
         
-        folder_name = 'test_data'
-        output_path = './'+ folder_name
-
         net = pn.case5()
         # time_steps = '1'
         general = {}
         general['use_ts'] = [False, False]
         general['use_opf'] = [False, False]
         general['use_dc'] = [True, True]
-        results, net = solver.run_one_iteration(network_name, scenario_name, gen_fuel_tech, output_path, net, general)
+        results, net = solver.run_one_iteration(network_name, scenario_name, gen_fuel_tech, self.output_path, net, general, self.output_setup )
         if len(net['res_bus']) > 0: flag = True
         self.assertEqual(flag, True) 
     
@@ -101,9 +106,6 @@ class TestSolver(unittest.TestCase):
         network_name = 'test_PF'
         scenario_name = 'AC_run_one_iteration'
         gen_fuel_tech = []
-        
-        folder_name = 'test_data'
-        output_path = './'+ folder_name
 
         net = create_opf_net()
         # time_steps = '1'
@@ -111,7 +113,7 @@ class TestSolver(unittest.TestCase):
         general['use_ts'] = [False, False]
         general['use_opf'] = [True, True]
         general['use_dc'] = [False, False]
-        results, net = solver.run_one_iteration(network_name, scenario_name, gen_fuel_tech, output_path, net, general)
+        results, net = solver.run_one_iteration(network_name, scenario_name, gen_fuel_tech, self.output_path, net, general, self.output_setup )
         if len(net['res_bus']) > 0: flag = True
         self.assertEqual(flag, True)
         
@@ -119,9 +121,6 @@ class TestSolver(unittest.TestCase):
         network_name = 'test_PF'
         scenario_name = 'DC_run_one_iteration'
         gen_fuel_tech = []
-        
-        folder_name = 'test_data'
-        output_path = './'+ folder_name
 
         net = create_opf_net()
         # time_steps = '1'
@@ -129,7 +128,7 @@ class TestSolver(unittest.TestCase):
         general['use_ts'] = [False, False]
         general['use_opf'] = [True, True]
         general['use_dc'] = [True, True]
-        results, net = solver.run_one_iteration(network_name, scenario_name, gen_fuel_tech, output_path, net, general)
+        results, net = solver.run_one_iteration(network_name, scenario_name, gen_fuel_tech, self.output_path, net, general, self.output_setup )
         if len(net['res_bus']) > 0: flag = True
         self.assertEqual(flag, True) 
         
