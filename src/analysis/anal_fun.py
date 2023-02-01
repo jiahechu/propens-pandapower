@@ -2,7 +2,7 @@
 """
 Created on Wed Jan 11 07:10:14 2023
 
-@author: thoug
+@author: Taeyoung
 """
 
 import numpy as np
@@ -12,16 +12,24 @@ import pandapower as pp
 import tempfile
 
 
-import Adv_network_only as addnet
+# import Adv_network_only as addnet
 
 import os
 import openpyxl as oxl 
 from io import StringIO
 
-net = addnet.net
+from tqdm import tqdm
+import time
+
+# net = addnet.net
 
 text='-'
 h_line = text.rjust(100,'-')
+
+# path_result = "./../../result/results_Network.xlsm"
+path_result = './result/results_Network.xlsm'
+
+
 #%%
 
 class pd_Analysis:
@@ -32,9 +40,9 @@ class pd_Analysis:
     
     
     def __init__(self):
-        self.output_dir = os.path.join("C:/Users/thoug/OneDrive/WS2022/ENS_Panda/2023/result/results_Network01_Scenario01.xlsm")
+        self.output_dir = os.path.join(path_result)
         
-        self.excel_to_write = os.path.join("C:/Users/thoug/OneDrive/WS2022/ENS_Panda/2023/result/result_anal_try.xlsx")
+        self.excel_to_write = os.path.join(path_result)
         
         self.vol_under = 0.99
         self.vol_over  = 1.03
@@ -145,7 +153,7 @@ class pd_Analysis:
             
             index_ab_df = []
             
-            for i in range(0, len(info_col)):
+            for i in tqdm(range(0, len(info_col))):
                 if info_col[i] < self.vol_under:
                     print(f"bus %d is undervoltage, it is {format(info_col[i], '.4f')} p.u. now" % i)
                     
@@ -189,7 +197,7 @@ class pd_Analysis:
             index_c_extra = []
             index_c_df = []
             
-            for i in range(0, len(info_col)):
+            for i in tqdm(range(0, len(info_col))):
                 
                 if info_col[i] > self.loading_over:
                     print(f"|component %d  overloadedd" %i, end='') 
@@ -216,7 +224,7 @@ class pd_Analysis:
                 index_c_extra = []
                 index_c_df = []
                 
-                for i in range(0, len(info_col)):
+                for i in tqdm(range(0, len(info_col))):
                     
                     if info_col[i] > self.loading_over:
                         print(f"|component %d  overloadedd" %i, end='') 
@@ -261,22 +269,43 @@ class pd_Analysis:
                 engine_kwargs={"keep_vba": True})as writer:
             df.to_excel(excel_writer=writer, sheet_name=sheet_name, float_format=float_format, startrow=startrow, startcol=startcol)
         
+    
+    def call_anal():
+        
+        print("Analyze the output grid")
+        aa = pd_Analysis()
+        bb1 = aa.anal_sheet('Buses')
+        bb2 = aa.anal_sheet('Lines')
+        bb3 = aa.anal_sheet('Trafos')
+        cc1 = aa.anal_col(bb1,'index','step','vm_pu') #info_col
+        cc2 = aa.anal_col(bb2,'index','step','loading_percent') #info_col
+        cc3 = aa.anal_col(bb3,'index','step','loading_percent') #info_col
+        print('Analyzing Voltage of the Bus')
+        dd1 = aa.anal_vol(cc1) 
+        print('Analyzing Loading of the Lines')
+        dd2 = aa.anal_line(cc2) 
+        print('Analyzing Loading of the Transformer')
+        dd3 = aa.anal_trafo(cc3)
+        print('You can find Analysis information on Summary Tab')
+        ee1 = aa.anal_excel_out(df1=dd1, df2=dd2, df3=dd3)
+        
+        return
         
         
 #%%
 #test space
-a = pd_Analysis()
-b1 = a.anal_sheet('Buses')
-b2 = a.anal_sheet('Lines')
+# a = pd_Analysis()
+# b1 = a.anal_sheet('Buses')
+# b2 = a.anal_sheet('Lines')
 
-c1 = a.anal_col(b1,'Voltage [p.u]')
-c2 = a.anal_col(b2, 'Loading Percent [%]')
+# c1 = a.anal_col(b1,'Voltage [p.u]')
+# c2 = a.anal_col(b2, 'Loading Percent [%]')
 
-d1 = a.anal_vol(c1)
-d2 = a.anal_line_load(c2)
+# d1 = a.anal_vol(c1)
+# d2 = a.anal_line_load(c2)
 
-#%%
-e=a.anal_excel_out(df1=d1, df2=d2)
+# #%%
+# e=a.anal_excel_out(df1=d1, df2=d2)
         
         
         
@@ -290,7 +319,8 @@ class pd_ts_Analysis(pd_Analysis):
     def __init__(self):
         
         super().__init__()
-        self.output_ts_dir = os.path.join("C:/Users/thoug/OneDrive/WS2022/ENS_Panda/2023/result/ts_result.xlsm")
+        # self.output_ts_dir = os.path.join("C:/Users/thoug/OneDrive/WS2022/ENS_Panda/Jan/result/results_Network.xlsm")
+        self.output_ts_dir = os.path.join(path_result)
         
         self.nr_ts = 95
         
@@ -299,7 +329,7 @@ class pd_ts_Analysis(pd_Analysis):
         
     def anal_sheet(self, sheet_name):
         
-        info_sheet= pd.read_excel(io=self.output_ts_dir, sheet_name =sheet_name, index_col =None , skiprows=2 ) #index_col = 1 : Time Step / index_col=3 : Bus Index / None for just regular
+        info_sheet= pd.read_excel(io=self.output_ts_dir, sheet_name =sheet_name, index_col =None , skiprows=3 ) #index_col = 1 : Time Step / index_col=3 : Bus Index / None for just regular
         
         return info_sheet
         
@@ -316,8 +346,8 @@ class pd_ts_Analysis(pd_Analysis):
         
         return info_col
     
-    def anal_vol(self, info_col, kwargs='Voltage [p.u]'):
-        if kwargs == 'Voltage [p.u]':
+    def anal_vol(self, info_col, kwargs='vm_pu'):
+        if kwargs == 'vm_pu':
             
             vol_under = 0.98 #originally 0.98
             vol_over = 1.02
@@ -326,7 +356,9 @@ class pd_ts_Analysis(pd_Analysis):
             
             # info_col_id = list(info_col.index)
             
-            info_here = info_col.values
+            info_filter = info_col.replace({'vm_pu':{'---':np.nan}})
+            
+            info_here = info_filter.values
             
             index_a = []
             index_a_value = []
@@ -357,9 +389,9 @@ class pd_ts_Analysis(pd_Analysis):
             
             
             # for i in range(len(info_col)):                # i=0 --> bus1~178 = one time step  // i=179 --> bus1~178 = two time step
-            for j in range(int(len(info_col))):
+            for j in tqdm(range(int(len(info_col)))):
                 # info_here[j][1]= info_col[kwargs][j]
-            
+                
                 if info_here[j][2] < vol_under:
                     
                     index_a.append(j)
@@ -393,6 +425,7 @@ class pd_ts_Analysis(pd_Analysis):
                     
                     return index_ab_df  #if there's no error, it return this
                     
+            time.sleep(1)
             # index_ab = index_a_extra.append(index_b_extra)
             
             index_ab = pd.concat([index_aa, index_bb], axis=1)
@@ -403,54 +436,68 @@ class pd_ts_Analysis(pd_Analysis):
     def anal_line(self, info_col, kwargs='line'):
         if kwargs == 'line':
             
-            line_over = 100
+            line_over = 100 #100
             
-            info_here = info_col.values
+            info_here_line = info_col.values
+            info_here_series = info_col['loading_percent'].squeeze()
             
-            index_c=[]
-            index_c_value=[]
-            index_c_extra=[]
+            index_d=[]
+            index_d_value=[]
+            index_d_extra=[]
             
-            for j in range(int(len(info_col))):
-                if info_here[j][2] > line_over:
+            for j in tqdm(range(int(len(info_col)))):
+                if info_here_line[j][2] > line_over:
                     
-                    index_c.append(j)
-                    index_c_value.append(info_here[j])
-                    index_c_extra = pd.DataFrame.from_records(data=index_c_value, columns=['Time Step', 'Line Index', 'Loading Percent[%]'])
+                    index_d.append(j)
+                    index_d_value.append(info_here_line[j])
+                    index_d_extra = pd.DataFrame.from_records(data=index_d_value, columns=['Time Step', 'Line Index', 'Loading Percent[%]'])
                     
-                if info_here[j][2] < line_over:
+                if all(j < line_over for j in info_here_series) == True:
                     
-                    index_c_value = {'Time Step':['---'],'Line Index':['---'],'Loading Percentage[%]':['---']}  
-                    index_c_extra = pd.DataFrame(index_c_value)
+                    index_d_value = {'Time Step':['---'],'Line Index':['---'],'Loading Percentage[%]':['---']}  
+                    index_d_extra = pd.DataFrame(index_d_value)
                     
-            
-            return index_c_extra
+            time.sleep(1)
+            return index_d_extra
         
         
     def anal_trafo(self, info_col, kwargs='trafos'):
         if kwargs == 'trafos':
             
-            trafo_over = 100
+            trafo_over = 100 #100
             
             info_here = info_col.values
+            
+            info_here_series = info_col['loading_percent'].squeeze()
             
             index_c=[]
             index_c_value=[]
             index_c_extra=[]
             
-            for j in range(int(len(info_col))):
-                if info_here[j][2] > trafo_over:
+            for j in tqdm(range(int(len(info_col)))):
+                if len(info_col) > 1:
+                    if info_here[j][2] > trafo_over:
+                        
+                        index_c.append(j)
+                        index_c_value.append(info_here[j])
+                        index_c_extra = pd.DataFrame.from_records(data=index_c_value, columns=['Time Step', 'Trafo Index', 'Loading Percent[%]'])
+                        
+                    if all(j < trafo_over for j in info_here_series) == True:
+                        
+                        index_c_value = {'Time Step':['---'],'Trafo Index':['---'],'Loading Percentage[%]':['---']}  
+                        index_c_extra = pd.DataFrame(index_c_value)
+                        
+                else:   # incase only one transformer exist
+                    if info_here[0][2] >= trafo_over:
+                        
+                        index_c_extra = pd.DataFrame(data=info_here, columns=['Time Step', 'Trafo Index', 'Loading Percent[%]'] )
+                        
+                    elif info_here[0][2] < trafo_over:
+                        
+                        index_c_value = {'Time Step':['---'],'Trafo Index':['---'],'Loading Percentage[%]':['---']}  
+                        index_c_extra = pd.DataFrame(index_c_value)
                     
-                    index_c.append(j)
-                    index_c_value.append(info_here[j])
-                    index_c_extra = pd.DataFrame.from_records(data=index_c_value, columns=['Time Step', 'Trafo Index', 'Loading Percent[%]'])
-                    
-                if info_here[j][2] < trafo_over:
-                    
-                    index_c_value = {'Time Step':['---'],'Trafo Index':['---'],'Loading Percentage[%]':['---']}  
-                    index_c_extra = pd.DataFrame(index_c_value)
-                    
-            
+            time.sleep(1)            
             return index_c_extra
             
             
@@ -480,21 +527,36 @@ class pd_ts_Analysis(pd_Analysis):
             df.to_excel(excel_writer=writer, sheet_name=sheet_name, float_format=float_format, startrow=startrow, startcol=startcol)
             
             
-
+    def call_anal():
+        
+        print("Analyze the output grid")
+        aa = pd_ts_Analysis()
+        bb1 = aa.anal_sheet('Buses')
+        bb2 = aa.anal_sheet('Lines')
+        bb3 = aa.anal_sheet('Trafos')
+        cc1 = aa.anal_col(bb1,'index','step','vm_pu') #info_col
+        cc2 = aa.anal_col(bb2,'index','step','loading_percent') #info_col
+        cc3 = aa.anal_col(bb3,'index','step','loading_percent') #info_col
+        print('Analyzing Voltage of the Bus')
+        dd1 = aa.anal_vol(cc1) 
+        print('Analyzing Loading of the Lines')
+        dd2 = aa.anal_line(cc2) 
+        print('Analyzing Loading of the Transformer')
+        dd3 = aa.anal_trafo(cc3)
+        print('You can find Analysis information on Summary Tab')
+        ee1 = aa.anal_excel_out(df1=dd1, df2=dd2, df3=dd3)
+        
+        return
     
     
 #%%
-aa = pd_ts_Analysis()
-bb1 = aa.anal_sheet('Buses')
-bb2 = aa.anal_sheet('Lines')
-bb3 = aa.anal_sheet('Trafos')
-cc1 = aa.anal_col(bb1,'Bus Index','Step','Voltage [p.u]') #info_col
-cc2 = aa.anal_col(bb2,'Line Index','Step','Loading Percent [%]') #info_col
-cc3 = aa.anal_col(bb3,'Trafo Index','Time Step','Loading Percent [%]') #info_col
-dd1 = aa.anal_vol(cc1) 
-dd2 = aa.anal_line(cc2) 
-dd3 = aa.anal_trafo(cc3)
-ee1 = aa.anal_excel_out(df1=dd1, df2=dd2, df3=dd3)
+
+if __name__ == "__main__":
+    
+
+
+    ff = pd_ts_Analysis()
+    f1 = ff.call_anal()
 
 
 
