@@ -8,8 +8,8 @@ from src.analysis.solver import solve
 from src.analysis.excel_output import create_excel
 from src.analysis.save import save_results
 from src.analysis.parameters import preallocate_tables
+from src.analysis.plot import plot_topology
 from datetime import datetime
-
 
 def executor(input_setup, output_setup):
     """
@@ -77,7 +77,7 @@ def executor(input_setup, output_setup):
         # in case of one iteration, the results are in net.res_####
         try:
             temporary_files[scenario_name], net = solve(input_setup['topology_name'], scenario_name, gen_fuel_tech, 
-                                                        output_setup['output_path'], net, time_steps, general)
+                                                        output_setup, net, time_steps, general)
         except:
             print('\nError while solving network, e.g. not converging')
             print('Program stops.')
@@ -102,8 +102,16 @@ def executor(input_setup, output_setup):
         print('Program stops.')
         print('Detail error arguments: ')
         raise
+    try:
+        plot_topology(output_setup, net)
+    except:
+        print('\nError while plotting the network')
+        print('Program stops.')
+        print('Detail error arguments: ')
+            
     time_end = datetime.now()
     td = (time_end - time_start).total_seconds()
     print('\n ------  The total time to calculate all scenarios was ' + str(td) + ' seconds ------')
     
     return 
+

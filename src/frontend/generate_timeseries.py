@@ -40,6 +40,7 @@ def generate_timeseries(net, ts_path):
 
     # replace all undefined value with the last defined value, create data source
     profiles.fillna(method='backfill', axis=0, inplace=True)
+    profiles = profiles[:10]
     data_source = DFData(profiles)
     num_ts = len(profiles.index)
 
