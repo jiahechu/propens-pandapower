@@ -74,6 +74,7 @@ def create_excel(topology_name, output_path, tables) :
             # print(element)
             df_element = tables[scenario][element]
             df_element['element'] = element
+            df_element['in_service'] = df_element['in_service'].astype(bool)
             data = pd.concat([data, df_element])
     print('\n\n Writing data sheet') 
     data = data.replace(np.nan, '---')
