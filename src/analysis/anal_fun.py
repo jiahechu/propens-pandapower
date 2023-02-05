@@ -28,6 +28,7 @@ h_line = text.rjust(100,'-')
 
 # path_result = "./../../result/results_Network.xlsm"
 path_result = './result/results_Network.xlsm'
+path_test = "C:/Users/thoug/OneDrive/WS2022/ENS_Panda/Feb/result/results_Network.xlsm"
 
 
 #%%
@@ -319,7 +320,7 @@ class pd_ts_Analysis(pd_Analysis):
     def __init__(self):
         
         super().__init__()
-        # self.output_ts_dir = os.path.join("C:/Users/thoug/OneDrive/WS2022/ENS_Panda/Jan/result/results_Network.xlsm")
+        # self.output_ts_dir = os.path.join("C:/Users/thoug/OneDrive/WS2022/ENS_Panda/Feb/result/results_Network.xlsm")
         self.output_ts_dir = os.path.join(path_result)
         
         self.nr_ts = 95
@@ -334,15 +335,17 @@ class pd_ts_Analysis(pd_Analysis):
         return info_sheet
         
         
-    def anal_col(self, info_sheet, bus_name, ts_name, col_name):
+    def anal_col(self, info_sheet, bus_name, ts_name, scenario_name, col_name):
         
         bus_index = info_sheet[bus_name]
         ts_index = info_sheet[ts_name]  #ts_name = 'step'
         information_col = info_sheet[col_name]
         
+        scenario_name = info_sheet[scenario_name]
+        
         number_col_index = pd.DataFrame(range(len(information_col)))
         
-        info_col = pd.concat([ts_index, bus_index, information_col], axis=1)
+        info_col = pd.concat([ts_index, bus_index, scenario_name, information_col], axis=1)
         
         return info_col
     
@@ -392,11 +395,11 @@ class pd_ts_Analysis(pd_Analysis):
             for j in tqdm(range(int(len(info_col)))):
                 # info_here[j][1]= info_col[kwargs][j]
                 
-                if info_here[j][2] < vol_under:
+                if info_here[j][3] < vol_under:
                     
                     index_a.append(j)
                     index_a_value.append(info_here[j])
-                    index_a_extra =pd.DataFrame.from_records(data=index_a_value, columns=['Time Step', 'Bus Index', 'Under Voltage [p.u]'])
+                    index_a_extra =pd.DataFrame.from_records(data=index_a_value, columns=['Time Step', 'Bus Index', 'Scenario', 'Under Voltage [p.u]'])
                     
                     index_aa = pd.DataFrame(index_a_extra)
                     
@@ -406,11 +409,11 @@ class pd_ts_Analysis(pd_Analysis):
                     
                     # i =+ len(info_col)/self.nr_ts
                     
-                elif info_here[j][2] > vol_over:
+                elif info_here[j][3] > vol_over:
                     
                     index_b.append(j)
                     index_b_value.append(info_here[j])
-                    index_b_extra =pd.DataFrame.from_records(data=index_b_value, columns=['Time Step', 'Bus Index', 'Over Voltage [p.u]'])
+                    index_b_extra =pd.DataFrame.from_records(data=index_b_value, columns=['Time Step', 'Bus Index','Scenario', 'Over Voltage [p.u]'])
                     
                     index_ab_df = index_b_extra
                     
@@ -418,7 +421,7 @@ class pd_ts_Analysis(pd_Analysis):
                 
                 elif all(vol_under < j < vol_over for j in info_series) == True:
                     
-                    index_c_value = {'Time Step':['---'],'Bus Index':['---'],'Voltage [p.u]':['---']}  
+                    index_c_value = {'Time Step':['---'],'Bus Index':['---'], 'Scenario':['---'],'Voltage [p.u]':['---']}  
                     index_c_extra = pd.DataFrame(index_c_value)
                     
                     index_ab_df = index_c_extra
@@ -446,15 +449,15 @@ class pd_ts_Analysis(pd_Analysis):
             index_d_extra=[]
             
             for j in tqdm(range(int(len(info_col)))):
-                if info_here_line[j][2] > line_over:
+                if info_here_line[j][3] > line_over:
                     
                     index_d.append(j)
                     index_d_value.append(info_here_line[j])
-                    index_d_extra = pd.DataFrame.from_records(data=index_d_value, columns=['Time Step', 'Line Index', 'Loading Percent[%]'])
+                    index_d_extra = pd.DataFrame.from_records(data=index_d_value, columns=['Time Step', 'Line Index','Scenario', 'Loading Percent[%]'])
                     
                 if all(j < line_over for j in info_here_series) == True:
                     
-                    index_d_value = {'Time Step':['---'],'Line Index':['---'],'Loading Percentage[%]':['---']}  
+                    index_d_value = {'Time Step':['---'],'Line Index':['---'], 'Scenario':['---'], 'Loading Percentage[%]':['---']}  
                     index_d_extra = pd.DataFrame(index_d_value)
                     
             time.sleep(1)
@@ -476,25 +479,25 @@ class pd_ts_Analysis(pd_Analysis):
             
             for j in tqdm(range(int(len(info_col)))):
                 if len(info_col) > 1:
-                    if info_here[j][2] > trafo_over:
+                    if info_here[j][3] > trafo_over:
                         
                         index_c.append(j)
                         index_c_value.append(info_here[j])
-                        index_c_extra = pd.DataFrame.from_records(data=index_c_value, columns=['Time Step', 'Trafo Index', 'Loading Percent[%]'])
+                        index_c_extra = pd.DataFrame.from_records(data=index_c_value, columns=['Time Step', 'Trafo Index','Scenario', 'Loading Percent[%]'])
                         
                     if all(j < trafo_over for j in info_here_series) == True:
                         
-                        index_c_value = {'Time Step':['---'],'Trafo Index':['---'],'Loading Percentage[%]':['---']}  
+                        index_c_value = {'Time Step':['---'],'Trafo Index':['---'], 'Scenario':['---'],  'Loading Percentage[%]':['---']}  
                         index_c_extra = pd.DataFrame(index_c_value)
                         
                 else:   # incase only one transformer exist
-                    if info_here[0][2] >= trafo_over:
+                    if info_here[0][3] >= trafo_over:
                         
-                        index_c_extra = pd.DataFrame(data=info_here, columns=['Time Step', 'Trafo Index', 'Loading Percent[%]'] )
+                        index_c_extra = pd.DataFrame(data=info_here, columns=['Time Step', 'Trafo Index', 'Scenario', 'Loading Percent[%]'] )
                         
-                    elif info_here[0][2] < trafo_over:
+                    elif info_here[0][3] < trafo_over:
                         
-                        index_c_value = {'Time Step':['---'],'Trafo Index':['---'],'Loading Percentage[%]':['---']}  
+                        index_c_value = {'Time Step':['---'],'Trafo Index':['---'], 'Scenario':['---'], 'Loading Percentage[%]':['---']}  
                         index_c_extra = pd.DataFrame(index_c_value)
                     
             time.sleep(1)            
@@ -513,7 +516,7 @@ class pd_ts_Analysis(pd_Analysis):
         
         #Writing starts from B-20
         
-        startrow = 20
+        startrow = 15
         startcol = 2
         
         df = pd.concat([df1, df2, df3], axis=1)
@@ -534,9 +537,9 @@ class pd_ts_Analysis(pd_Analysis):
         bb1 = aa.anal_sheet('Buses')
         bb2 = aa.anal_sheet('Lines')
         bb3 = aa.anal_sheet('Trafos')
-        cc1 = aa.anal_col(bb1,'index','step','vm_pu') #info_col
-        cc2 = aa.anal_col(bb2,'index','step','loading_percent') #info_col
-        cc3 = aa.anal_col(bb3,'index','step','loading_percent') #info_col
+        cc1 = aa.anal_col(bb1,'index','step','scenario','vm_pu') #info_col
+        cc2 = aa.anal_col(bb2,'index','step','scenario','loading_percent') #info_col   #need to update scenario tab
+        cc3 = aa.anal_col(bb3,'index','step', 'scenario','loading_percent') #info_col
         print('Analyzing Voltage of the Bus')
         dd1 = aa.anal_vol(cc1) 
         print('Analyzing Loading of the Lines')
@@ -555,8 +558,21 @@ if __name__ == "__main__":
     
 
 
-    ff = pd_ts_Analysis()
-    f1 = ff.call_anal()
+        aa = pd_ts_Analysis()
+        bb1 = aa.anal_sheet('Buses')
+        bb2 = aa.anal_sheet('Lines')
+        bb3 = aa.anal_sheet('Trafos')
+        cc1 = aa.anal_col(bb1,'index','step','scenario','vm_pu') #info_col
+        cc2 = aa.anal_col(bb2,'index','step','scenario','loading_percent') #info_col   #need to update scenario tab
+        cc3 = aa.anal_col(bb3,'index','step', 'scenario','loading_percent') #info_col
+        print('Analyzing Voltage of the Bus')
+        dd1 = aa.anal_vol(cc1) 
+        print('Analyzing Loading of the Lines')
+        dd2 = aa.anal_line(cc2) 
+        print('Analyzing Loading of the Transformer')
+        dd3 = aa.anal_trafo(cc3)
+        print('You can find Analysis information on Summary Tab')
+        ee1 = aa.anal_excel_out(df1=dd1, df2=dd2, df3=dd3)
 
 
 
