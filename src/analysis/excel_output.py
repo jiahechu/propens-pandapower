@@ -66,7 +66,7 @@ def create_excel(topology_name, output_path, tables) :
                 print('>>>>>> Element : '+ element)
                 raise
 
-    #%% data sheet
+    #% merge all the results from scenarios and elements for the data sheet
     data = pd.DataFrame()
     for scenario in tables.keys():
         # print(scenario)
@@ -74,11 +74,11 @@ def create_excel(topology_name, output_path, tables) :
             # print(element)
             df_element = tables[scenario][element]
             df_element['element'] = element
+            df_element['in_service'] = df_element['in_service'].astype(bool)
             data = pd.concat([data, df_element])
-            
+    print('\n\n Writing data sheet') 
     data = data.replace(np.nan, '---')
     #data= data.replace(None, '--')
-
     rows = dataframe_to_rows(df = data)
     for r_idx, row in enumerate(rows, 1):
         for c_idx, value in enumerate(row, 1):
@@ -86,7 +86,7 @@ def create_excel(topology_name, output_path, tables) :
     letter = utils.cell.get_column_letter(c_idx)
     end = letter + str(r_idx)
     wb['Data'].tables['Data'].ref = 'B2' + ':' + end
-
+    print(' > Done')
     #% Update Table reference, and here the cell is the last cell added i.e. bottom-right corner of each table  
     print('\n\n Updating tables references in excel...')
     # the order of the element in the 'number' dict  is important, as it dictate which table in on top when
@@ -95,18 +95,15 @@ def create_excel(topology_name, output_path, tables) :
     for sheet_ in sheets_names:
             if not cell[sheet_] == cell['initial']:
                 wb[sheet_].tables[sheet_].ref = cell['initial'] + ':' + cell[sheet_]
-                                 
-
     #% save with the topology and scenarios names
     print('\n Closing workbook ...')
     file_name =  'results_' + topology_name + '.xlsm'
-    
     wb.save(output_path + '/' + file_name)
     print('\n Done' )
     print('      > You can check the results with the path: ' + output_path ) 
     print('      > and the results were saved in : ' + file_name)     
     
-    return 
+    return True
 
 #%%
 

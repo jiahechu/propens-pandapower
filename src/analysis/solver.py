@@ -8,9 +8,11 @@ Created on Tue Jan 10 22:33:32 2023
 import pandapower as pp
 from src.analysis.time_series_func import run_time_series
 from src.analysis.parameters import output_parameters
+from src.analysis.plot import plot_interactive
+
 #%%
-def solve(network_name, scenario_name, gen_fuel_tech, output_path, net, time_steps, general):
-    
+def solve(network_name, scenario_name, gen_fuel_tech,output_setup , net, time_steps, general):
+    output_path = output_setup['output_path']
     for parameter in general:
         if parameter == 'ts_path':
             continue
@@ -24,7 +26,7 @@ def solve(network_name, scenario_name, gen_fuel_tech, output_path, net, time_ste
                 raise
     
     if general['use_ts'][0] == False:# for one iteration, 'results' is empty, as everything is in net.res_
-        results, net = run_one_iteration(network_name, scenario_name, gen_fuel_tech, output_path, net, general)  
+        results, net = run_one_iteration(network_name, scenario_name, gen_fuel_tech, output_path, net, general, output_setup)  
     elif general['use_opf'][0] == False:
         results, net = run_time_series(network_name, scenario_name, gen_fuel_tech, output_path, net, time_steps)
         
@@ -35,10 +37,7 @@ def solve(network_name, scenario_name, gen_fuel_tech, output_path, net, time_ste
     print('\n >>>>>  Solve Network - Done')   
     return results, net
 
-            
-            
-
-def run_one_iteration(network_name, scenario_name, gen_fuel_tech, output_path, net, general):
+def run_one_iteration(network_name, scenario_name, gen_fuel_tech, output_path, net, general, output_setup):
     
     [number, column, parameters] = output_parameters(net, gen_fuel_tech, scenario_name)
     results = {}
@@ -59,5 +58,8 @@ def run_one_iteration(network_name, scenario_name, gen_fuel_tech, output_path, n
         else:
             print('\n Running a Non-linear Power Flow ')
             pp.runpp(net)
+    
+    plot_interactive(output_setup, net, network_name, scenario_name)
+
     
     return results,  net

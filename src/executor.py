@@ -8,8 +8,10 @@ from src.analysis.solver import solve
 from src.analysis.excel_output import create_excel
 from src.analysis.save import save_results
 from src.analysis.parameters import preallocate_tables
+from src.analysis.plot import plot_topology
+from src.analysis.anal_fun import pd_ts_Analysis
+from src.analysis.anal_fun import pd_Analysis
 from datetime import datetime
-
 
 def executor(input_setup, output_setup):
     """
@@ -24,10 +26,9 @@ def executor(input_setup, output_setup):
         tables: dictionary of dataframes, which are the tables to be written in the excel output
     """
     time_start = datetime.now()
-    print('\n Running: read_conventional_generation')    # preallocate tables and temporary files dictionary for the different scenarios results
+    # preallocate tables and temporary files dictionary for the different scenarios results
     tables = preallocate_tables(input_setup)
     temporary_files = {} 
-    
     # simulate for each scenario
     for scenario_name, scenario_path, pd_scenario, pd_para in input_setup['scenario_setup']:
         print('\nStart simulation with scenario ' + scenario_name)
@@ -77,7 +78,7 @@ def executor(input_setup, output_setup):
         # in case of one iteration, the results are in net.res_####
         try:
             temporary_files[scenario_name], net = solve(input_setup['topology_name'], scenario_name, gen_fuel_tech, 
-                                                        output_setup['output_path'], net, time_steps, general)
+                                                        output_setup, net, time_steps, general)
         except:
             print('\nError while solving network, e.g. not converging')
             print('Program stops.')
@@ -102,8 +103,28 @@ def executor(input_setup, output_setup):
         print('Program stops.')
         print('Detail error arguments: ')
         raise
+
+
+    try:
+        plot_topology(output_setup, net)
+    except:
+        print('\nError while plotting the network')
+        print('Program stops.')
+        print('Detail error arguments: ')
+
+    try:
+        pd_ts_Analysis.call_anal()        
+        # if time_steps == 0:
+        #     pd_Analysis.call_anal()
+            
+        # elif time_steps > 0:
+        #     pd_ts_Analysis.call_anal() 
+    except:
+        raise
+            
     time_end = datetime.now()
     td = (time_end - time_start).total_seconds()
     print('\n ------  The total time to calculate all scenarios was ' + str(td) + ' seconds ------')
     
     return 
+
