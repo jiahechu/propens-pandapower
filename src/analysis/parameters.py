@@ -14,7 +14,7 @@ def sheets_parameters():
     # so the keys() is the the name of the sheets
     elements_by_type = {'Buses' :['bus'],
                         'Demand' : ['load'],
-                        'Generation' : ['gen', 'sgen','ext_grid'],
+                        'Generation' : ['gen', 'sgen', 'ext_grid', 'storage'],
                         'Lines' : ['line'],
                         'Trafos' : ['trafo']}
     # each output sheet contains the same type of elements, so we can analyze the whole group 

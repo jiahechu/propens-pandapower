@@ -26,8 +26,8 @@ output_setup = {
     'output_path': './result/',
     # all the scenarios will have the same plotting setings, however, time series scenarios will not be plotted
     'plot': { 'topology': True, # a plot with the network topology will be created and save as an image (just once)
-              'interactive network': True, # a interactive map will be open in the default internet browser, and saved in the output_path
-              'interactive heat map network': True # the interative map will include loading levels
+              'interactive network': False, # a interactive map will be open in the default internet browser, and saved in the output_path
+              'interactive heat map network': False # the interative map will include loading levels
             }
     }
 # execute the toolbox

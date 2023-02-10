@@ -12,3 +12,5 @@ dependencies:
     - openpyxl
     - numba
     - coverage
+    - matplotlib
+    - plotly
